@@ -7,7 +7,7 @@ members = [
 
 [package]
 name = "flex_pool"
-version = "1.0.1"
+version = "1.0.0"
 edition = "2021"
 
 [net]
@@ -17,8 +17,8 @@ git-fetch-with-cli = true
 sbor = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
 scrypto = { git = "https://github.com/radixdlt/radixdlt-scrypto", tag = "v1.1.1" }
 scrypto_math = { git = "https://github.com/ociswap/scrypto-math", tag = "v0.4.0" }
-common = { git = "https://github.com/ociswap/pools-common" }
-oracle = { git = "ssh://git@github.com/ociswap/oracle.git", version = "1.0.5" }
+common = { git = "https://github.com/ociswap/pools-common", tag = "v1.0.5" }
+oracle = { git = "ssh://git@github.com/ociswap/oracle.git", tag = "v1.0.6" }
 flex_pool_hooks = { path = "hooks" }
 
 [dev-dependencies]
