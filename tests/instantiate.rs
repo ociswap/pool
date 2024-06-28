@@ -1,11 +1,10 @@
-
 use common::math::AttoDecimal;
 // INSTANTIATE
+use flex_pool_test_helper::*;
 use pretty_assertions::assert_eq;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
 use test_case::test_case;
-use flex_pool_test_helper::*;
 
 #[test]
 fn test_instantiate() {

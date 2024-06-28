@@ -1,8 +1,8 @@
 use std::mem;
 
-use registry_test_helper::RegistryTestHelper;
 use pretty_assertions::assert_eq;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier::{self, Amount};
+use registry_test_helper::RegistryTestHelper;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
 use transaction::builder::ManifestBuilder;
@@ -16,12 +16,9 @@ pub struct FlexPoolTestHelper {
 
 impl FlexPoolTestHelper {
     pub fn new() -> FlexPoolTestHelper {
-        let packages: HashMap<&str, &str> = vec![
-            ("registry", "registry"),
-            ("flex_pool", "."),
-        ]
-        .into_iter()
-        .collect();
+        let packages: HashMap<&str, &str> = vec![("registry", "registry"), ("flex_pool", ".")]
+            .into_iter()
+            .collect();
         Self::new_with_packages(packages)
     }
 

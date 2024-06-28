@@ -1,6 +1,5 @@
-
-use scrypto::prelude::*;
 use flex_pool_test_helper::*;
+use scrypto::prelude::*;
 
 #[test]
 fn test_instantiate_with_liquidity() {

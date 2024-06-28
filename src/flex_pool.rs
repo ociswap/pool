@@ -3,11 +3,11 @@ use scrypto::prelude::*;
 use crate::constants::*;
 use crate::pool_math::*;
 use crate::utils::*;
-use flex_pool_hooks::*;
 use common::math::DivisibilityRounding;
-use oracle::{Oracle, AccumulatedObservation, ObservationInterval};
 use common::pools::*;
 use common::time::*;
+use flex_pool_hooks::*;
+use oracle::{AccumulatedObservation, ObservationInterval, Oracle};
 
 #[blueprint]
 #[events(InstantiateEvent, SwapEvent, FlashLoanEvent)]

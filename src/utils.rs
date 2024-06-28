@@ -26,7 +26,8 @@ pub fn assert_hooks_bucket_output_and_address(
         hook_type_name
     );
     assert_eq!(
-        initial_address, returned_tokens.resource_address(),
+        initial_address,
+        returned_tokens.resource_address(),
         "{} hooks returned a different token than expected",
         hook_type_name
     );

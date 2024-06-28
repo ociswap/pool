@@ -1,6 +1,6 @@
+use flex_pool_test_helper::*;
 use scrypto::prelude::*;
 use scrypto_testenv::TestHelperExecution;
-use flex_pool_test_helper::*;
 
 #[test]
 fn test_remove_liquidity() {

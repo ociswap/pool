@@ -1,8 +1,8 @@
 use flex_pool::constants::*;
+use flex_pool_test_helper::*;
 use scrypto::prelude::*;
 use scrypto_testenv::MAX_SUPPLY;
 use test_case::test_case;
-use flex_pool_test_helper::*;
 
 fn add_liquidity_success(mut helper: FlexPoolTestHelper) -> FlexPoolTestHelper {
     helper.add_liquidity_success(

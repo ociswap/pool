@@ -1,9 +1,9 @@
 use std::mem;
 
 // INSTANTIATE
+use flex_pool_test_helper::*;
 use scrypto::prelude::*;
 use scrypto_unit::dump_manifest_to_file_system;
-use flex_pool_test_helper::*;
 use transaction::model::InstructionV1;
 
 #[test]

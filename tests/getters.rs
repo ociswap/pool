@@ -1,9 +1,9 @@
 use common::math::*;
+use flex_pool_test_helper::FlexPoolTestHelper;
 use pretty_assertions::assert_eq;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
 use scrypto_testenv::environment::TestHelperExecution;
-use flex_pool_test_helper::FlexPoolTestHelper;
 
 #[test]
 fn test_getters_after_instantiation() {
