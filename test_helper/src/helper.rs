@@ -2,10 +2,10 @@ use std::mem;
 
 use pretty_assertions::assert_eq;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier::{self, Amount};
+use radix_transactions::builder::ManifestBuilder;
 use registry_test_helper::RegistryTestHelper;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
-use transaction::builder::ManifestBuilder;
 
 pub struct FlexPoolTestHelper {
     pub pool_address: Option<ComponentAddress>,
