@@ -2,9 +2,9 @@ use std::mem;
 
 // INSTANTIATE
 use flex_pool_test_helper::*;
+use radix_transactions::model::InstructionV1;
 use scrypto::prelude::*;
-use scrypto_unit::dump_manifest_to_file_system;
-use transaction::model::InstructionV1;
+use scrypto_test::utils::dump_manifest_to_file_system;
 
 #[test]
 fn test_dump_instantiate() {
