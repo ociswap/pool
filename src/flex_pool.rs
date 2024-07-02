@@ -205,6 +205,9 @@ mod flex_pool {
                 .divisibility()
                 .unwrap_or_default();
 
+            let (pool_name, lp_name, lp_description) =
+                Self::names_and_lp_description(x_address, y_address);
+
             let pool = (Self {
                 pool_address,
                 x_address,
@@ -238,6 +241,7 @@ mod flex_pool {
             .metadata(metadata! {
                 init {
                     "pool_address" => pool_address, locked;
+                    "name" => pool_name, locked;
                     "liquidity_pool" => liquidity_pool.address(), locked;
                     "lp_address" => lp_address, locked;
                     "flash_loan_address" => flash_manager.address(), locked;
@@ -253,7 +257,13 @@ mod flex_pool {
             .globalize();
 
             // Sets the metadata for the liquidity pool.
-            pool.set_liquidity_pool_meta(pool_address, lp_address, dapp_definition);
+            pool.set_liquidity_pool_meta(
+                pool_address,
+                lp_address,
+                lp_name,
+                lp_description,
+                dapp_definition,
+            );
 
             // Execute post-instantiation hooks and emit an event for successful instantiation.
             pool.execute_after_instantiate(AfterInstantiateState {
@@ -271,8 +281,8 @@ mod flex_pool {
                 x_address,
                 y_address,
                 x_share,
-                price_sqrt: None,
                 input_fee_rate,
+                flash_loan_address: flash_manager.address(),
                 flash_loan_fee_rate,
                 registry_address,
                 liquidity_pool_address: liquidity_pool.address(),
@@ -648,6 +658,42 @@ mod flex_pool {
             self.registry
         }
 
+        /// Generates names and descriptions for the pool and LP tokens.
+        ///
+        /// This function constructs the names and descriptions for the pool and its associated LP tokens
+        /// based on the symbols of the provided resource addresses.
+        ///
+        /// # Arguments
+        /// * `x_address` - The resource address of the first asset in the pool.
+        /// * `y_address` - The resource address of the second asset in the pool.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// - `pool_name`: The name of the pool.
+        /// - `lp_name`: The name of the LP token.
+        /// - `lp_description`: The description of the LP token.
+        fn names_and_lp_description(
+            x_address: ResourceAddress,
+            y_address: ResourceAddress,
+        ) -> (String, String, String) {
+            let x_symbol = token_symbol(x_address);
+            let y_symbol = token_symbol(y_address);
+            let (pool_name, lp_name, lp_description) =
+                match x_symbol.zip(y_symbol).map(|(x, y)| format!("{}/{}", x, y)) {
+                    Some(pair_symbol) => (
+                        format!("Ociswap Flex Pool {}", pair_symbol).to_owned(),
+                        format!("Ociswap LP {}", pair_symbol).to_owned(),
+                        format!("Ociswap LP token for Flex Pool {}", pair_symbol).to_owned(),
+                    ),
+                    None => (
+                        "Ociswap Flex Pool".to_owned(),
+                        "Ociswap LP".to_owned(),
+                        "Ociswap LP token for Flex Pool".to_owned(),
+                    ),
+                };
+            (pool_name, lp_name, lp_description)
+        }
+
         /// Sets the metadata for the LP tokens from the liquidity pool to be displayed in the Wallet.
         /// This method can only be called by the Blueprint.
         ///
@@ -659,23 +705,11 @@ mod flex_pool {
             &self,
             pool_address: ComponentAddress,
             lp_address: ResourceAddress,
+            name: String,
+            description: String,
             dapp_definition: ComponentAddress,
         ) {
             let lp_manager = ResourceManager::from_address(lp_address);
-
-            let x_symbol = token_symbol(self.x_address);
-            let y_symbol = token_symbol(self.y_address);
-            let (name, description) =
-                match x_symbol.zip(y_symbol).map(|(x, y)| format!("{}/{}", x, y)) {
-                    Some(pair_symbol) => (
-                        format!("Ociswap LP {}", pair_symbol).to_owned(),
-                        format!("Ociswap LP token for the {} Flex Pool", pair_symbol).to_owned(),
-                    ),
-                    None => (
-                        "Ociswap LP".to_owned(),
-                        "Ociswap LP token for the Flex Pool".to_owned(),
-                    ),
-                };
             lp_manager.set_metadata("name", name);
             lp_manager.set_metadata("description", description);
 
@@ -1070,8 +1104,8 @@ struct InstantiateEvent {
     x_address: ResourceAddress,
     y_address: ResourceAddress,
     x_share: Decimal,
-    price_sqrt: Option<PreciseDecimal>,
     input_fee_rate: Decimal,
+    flash_loan_address: ResourceAddress,
     flash_loan_fee_rate: Decimal,
     registry_address: ComponentAddress,
     liquidity_pool_address: ComponentAddress,
