@@ -428,7 +428,7 @@ mod flex_pool {
             let input_amount = input_bucket.amount();
             let mut vault_amounts = self.liquidity_pool.get_vault_amounts();
             let input_vault_amount = vault_amounts
-                .remove(&input_address)
+                .swap_remove(&input_address)
                 .expect("No input resource!");
             assert!(
                 input_vault_amount > Decimal::ZERO,
