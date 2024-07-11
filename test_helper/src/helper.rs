@@ -685,6 +685,19 @@ impl FlexPoolTestHelper {
         self
     }
 
+    pub fn oldest_observation_at(&mut self) -> &mut FlexPoolTestHelper {
+        let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
+        self.registry.env.manifest_builder = manifest_builder.call_method(
+            self.pool_address.unwrap(),
+            "oldest_observation_at",
+            manifest_args!(),
+        );
+        self.registry
+            .env
+            .new_instruction("oldest_observation_at", 1, 0);
+        self
+    }
+
     pub fn jump_to_timestamp_seconds(&mut self, seconds: u64) {
         let current_time = self
             .registry
