@@ -28,7 +28,7 @@ mod flex_pool {
             y_divisibility              => PUBLIC;
             lp_address                  => PUBLIC;
             price_sqrt                  => PUBLIC;
-            vault_amounts               => PUBLIC;
+            total_liquidity             => PUBLIC;
             input_fee_rate              => PUBLIC;
             fee_protocol_share          => PUBLIC;
             flash_loan_fee_rate         => PUBLIC;
@@ -580,7 +580,7 @@ mod flex_pool {
         ///
         /// # Returns
         /// * A tuple with shape (Decimal, Decimal) containing the amounts of token X and token Y.
-        pub fn vault_amounts(&self) -> (Decimal, Decimal) {
+        fn vault_amounts(&self) -> (Decimal, Decimal) {
             let reserves = self.liquidity_pool.get_vault_amounts();
 
             let x_amount = *reserves
@@ -590,6 +590,14 @@ mod flex_pool {
                 .get(&self.y_address)
                 .expect("Resource does not belong to the pool!");
             (x_amount, y_amount)
+        }
+
+        /// Retrieve the amounts of tokens X and Y in the pool.
+        ///
+        /// # Returns
+        /// * `IndexMap<ResourceAddress, Decimal>` - A map containing the resource addresses and their corresponding amounts.
+        pub fn total_liquidity(&self) -> IndexMap<ResourceAddress, Decimal> {
+            self.liquidity_pool.get_vault_amounts()
         }
 
         /// Calculate the square root of the price ratio between token X and token Y.
