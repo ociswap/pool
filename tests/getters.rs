@@ -36,6 +36,7 @@ fn test_getters_after_instantiation() {
     helper.fee_protocol_share();
     helper.flash_loan_fee_rate();
     helper.x_share();
+    helper.y_share();
 
     let receipt = helper.registry.execute_expect_success(false);
 
@@ -45,6 +46,8 @@ fn test_getters_after_instantiation() {
     let input_fee_rate_returned: Vec<Decimal> = receipt.outputs("input_fee_rate");
     let fee_protocol_share_returned: Vec<Decimal> = receipt.outputs("fee_protocol_share");
     let flash_loan_fee_rate_returned: Vec<Decimal> = receipt.outputs("flash_loan_fee_rate");
+    let x_share_returned: Vec<Decimal> = receipt.outputs("x_share");
+    let y_share_returned: Vec<Decimal> = receipt.outputs("y_share");
 
     assert_eq!(
         (
@@ -52,14 +55,18 @@ fn test_getters_after_instantiation() {
             total_liquidity_returned,
             input_fee_rate_returned,
             fee_protocol_share_returned,
-            flash_loan_fee_rate_returned
+            flash_loan_fee_rate_returned,
+            x_share_returned,
+            y_share_returned
         ),
         (
             vec![None],
             vec![indexmap! { helper.x_address() => dec!(0), helper.y_address() => dec!(0) }],
             vec![input_fee_rate],
             vec![dec!(0)],
-            vec![flash_loan_fee_rate]
+            vec![flash_loan_fee_rate],
+            vec![x_share],
+            vec![dec!(1) - x_share]
         )
     );
 }
@@ -119,6 +126,7 @@ fn test_after_first_transaction() {
 
     helper.add_liquidity_default(dec!(100), dec!(100));
     helper.total_liquidity();
+    helper.lp_total_supply();
 
     let receipt_1 = helper.registry.execute_expect_success(false);
 
@@ -130,11 +138,18 @@ fn test_after_first_transaction() {
         receipt_1.outputs("total_liquidity");
     let fee_protocol_share_returned: Vec<Decimal> = receipt_2.outputs("fee_protocol_share");
 
+    let lp_total_supply_returned: Vec<Decimal> = receipt_1.outputs("lp_total_supply");
+
     assert_eq!(
-        (total_liquidity_returned, fee_protocol_share_returned,),
+        (
+            total_liquidity_returned,
+            fee_protocol_share_returned,
+            lp_total_supply_returned
+        ),
         (
             vec![indexmap! { helper.x_address() => dec!(100), helper.y_address() => dec!(100) }],
-            vec![fee_protocol_share]
+            vec![fee_protocol_share],
+            vec![dec!(100)]
         )
     );
 }
