@@ -4,6 +4,7 @@ use crate::constants::*;
 use crate::pool_math::*;
 use crate::utils::*;
 use common::math::DivisibilityRounding;
+use common::metadata::{assert_component_packages_are_approved, assert_components_are_approved};
 use common::pools::*;
 use common::time::*;
 use flex_pool_hooks::*;
@@ -122,6 +123,12 @@ mod flex_pool {
 
             assert_input_fee_rate_is_valid(input_fee_rate);
             assert_flash_loan_fee_rate_is_valid(flash_loan_fee_rate);
+
+            assert_components_are_approved("registry_components", vec![registry_address]);
+            assert_component_packages_are_approved(
+                "hook_packages",
+                hook_badges.iter().map(|(address, _)| *address).collect(),
+            );
 
             // Ensure both token addresses point to fungible tokens.
             assert!(

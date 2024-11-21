@@ -13,13 +13,14 @@ fn test_getters_after_instantiation() {
 
     let fee_protocol_share = dec!(0.0187136);
 
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
     helper.registry.instantiate_execute(
         helper.registry.admin_badge_address(),
         fee_protocol_share,
         1,
         1,
     );
+    helper.set_whitelist_registry();
     helper.instantiate_full_direct(
         helper.a_address(),
         helper.b_address(),
@@ -100,13 +101,14 @@ fn test_after_first_transaction() {
 
     let fee_protocol_share = dec!(0.0187136);
 
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
     helper.registry.instantiate_execute(
         helper.registry.admin_badge_address(),
         fee_protocol_share,
         1,
         1,
     );
+    helper.set_whitelist_registry();
     helper.instantiate_full_direct(
         helper.a_address(),
         helper.b_address(),

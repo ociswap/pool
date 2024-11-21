@@ -9,9 +9,7 @@ use test_case::test_case;
 #[test]
 fn test_instantiate() {
     let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     let receipt = helper
         .instantiate(
             helper.x_address(),
@@ -30,9 +28,7 @@ fn test_instantiate() {
 #[test]
 fn test_instantiate_same_token() {
     let mut helper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper
         .instantiate(
             helper.x_address(),
@@ -55,9 +51,7 @@ fn test_instantiate_random_address_token() {
         "5df173925d7814e488512f12cb03c6edfe2b3ea39c24538290476c34ba17",
     )
     .unwrap();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper
         .instantiate(
             helper.x_address(),
@@ -73,9 +67,7 @@ fn test_instantiate_random_address_token() {
 #[test]
 fn test_instantiate_nft_addresses_both() {
     let mut helper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper
         .instantiate(
             helper.j_nft_address(),
@@ -91,9 +83,7 @@ fn test_instantiate_nft_addresses_both() {
 #[test]
 fn test_instantiate_nft_address_x() {
     let mut helper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper
         .instantiate(
             helper.j_nft_address(),
@@ -109,9 +99,7 @@ fn test_instantiate_nft_address_x() {
 #[test]
 fn test_instantiate_nft_address_y() {
     let mut helper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper
         .instantiate(
             helper.x_address(),
@@ -128,9 +116,7 @@ fn test_instantiate_nft_address_y() {
 fn test_instantiate_pool_with_lp_token() {
     let mut helper = FlexPoolTestHelper::new();
     helper.instantiate_default(false);
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper
         .instantiate(
             helper.x_address(),
@@ -146,9 +132,7 @@ fn test_instantiate_pool_with_lp_token() {
 #[test]
 fn test_instantiate_wrong_order() {
     let mut helper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper.instantiate(
         helper.y_address(),
         helper.x_address(),
@@ -173,9 +157,7 @@ fn test_instantiate_wrong_order() {
 #[test_case(dec!(1) + Decimal::ATTO, false ; "more_than_one")]
 fn test_instantiate_input_fee_rate(input_fee_rate: Decimal, success: bool) {
     let mut helper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper.instantiate(
         helper.x_address(),
         helper.y_address(),
@@ -202,9 +184,7 @@ fn test_instantiate_input_fee_rate(input_fee_rate: Decimal, success: bool) {
 #[test_case(dec!(1), false ; "one")]
 fn test_instantiate_a_share(a_share: Decimal, success: bool) {
     let mut helper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper.instantiate(
         helper.x_address(),
         helper.y_address(),
@@ -240,4 +220,138 @@ fn test_instantiate_metadata() {
         )
         .unwrap();
     println!("{:?}", liquidity_pool_meta);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_other_value_type() {
+    let mut helper = FlexPoolTestHelper::new();
+    helper.set_whitelist_registry_value("OTHER");
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_failure(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_other_value_type_vec() {
+    let mut helper = FlexPoolTestHelper::new();
+    helper.set_whitelist_registry_value(vec!["FAKE"]);
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_failure(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_other_package_address() {
+    let mut helper = FlexPoolTestHelper::new();
+    let global_address: GlobalAddress = helper.registry.env.account.into();
+    helper.set_whitelist_registry_value(vec![global_address]);
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_failure(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_two_package_address_registry_and_other() {
+    let mut helper = FlexPoolTestHelper::new();
+    let global_address1: GlobalAddress = helper.registry.registry_address.unwrap().into();
+    let global_address2: GlobalAddress = helper.registry.env.account.into();
+    helper.set_whitelist_registry_value(vec![global_address1, global_address2]);
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_success(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_two_same_registry_package_addresses() {
+    let mut helper = FlexPoolTestHelper::new();
+    let global_address1: GlobalAddress = helper.registry.registry_address.unwrap().into();
+    let global_address2: GlobalAddress = helper.registry.registry_address.unwrap().into();
+    helper.set_whitelist_registry_value(vec![global_address1, global_address2]);
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_success(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_two_addresses_registry_and_resource() {
+    let mut helper = FlexPoolTestHelper::new();
+    let global_address1: GlobalAddress = helper.registry.registry_address.unwrap().into();
+    let global_address2: GlobalAddress = helper.registry.env.x_address.into();
+    helper.set_whitelist_registry_value(vec![global_address1, global_address2]);
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_success(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_empty_vec() {
+    let mut helper = FlexPoolTestHelper::new();
+    helper.set_whitelist_registry_value(Vec::<GlobalAddress>::new());
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_failure(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_missing() {
+    let mut helper = FlexPoolTestHelper::new();
+    helper
+        .instantiate(
+            helper.x_address(),
+            helper.y_address(),
+            dec!(0),
+            dec!(0.5),
+            helper.registry.registry_address.unwrap(),
+        )
+        .registry
+        .execute_expect_failure(false);
 }

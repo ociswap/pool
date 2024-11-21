@@ -28,9 +28,7 @@ impl HookTestTestHelper {
         ]
         .into_iter()
         .collect();
-        let mut pool = FlexPoolTestHelper::new_with_packages(packages);
-        pool.registry
-            .instantiate_default(pool.registry.admin_badge_address());
+        let pool = FlexPoolTestHelper::new_with_packages(packages, true);
 
         Self {
             pool,
@@ -69,7 +67,7 @@ impl HookTestTestHelper {
     ) -> (ComponentAddress, ResourceAddress) {
         self.instantiate_test_hook(calls, calls_access);
 
-        let receipt = self.execute(true);
+        let receipt = self.execute(false);
 
         let new_resource_ads = receipt
             .execution_receipt
@@ -82,8 +80,10 @@ impl HookTestTestHelper {
     }
 
     pub fn execute_all_calls(&mut self, hooks: Vec<(ComponentAddress, ResourceAddress)>) {
+        self.pool.set_whitelist_registry();
+        self.pool.set_whitelist_hook("test_hook");
         // Instantiate pool
-        self.pool.instantiate_default_with_hooks(hooks, true);
+        self.pool.instantiate_default_with_hooks(hooks, false);
 
         // Add liquidity
         self.pool.add_liquidity_default_execute(dec!(10), dec!(10));

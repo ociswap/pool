@@ -4,9 +4,7 @@ use scrypto::prelude::*;
 #[test]
 fn test_instantiate_with_liquidity() {
     let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper.instantiate_with_liquidity_success(
         dec!(10),
         dec!(40),

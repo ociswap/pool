@@ -26,7 +26,7 @@ TAKE_FROM_WORKTOP
     Bucket("y_bucket_1")
 ;
 CALL_METHOD
-    Address("component_sim1cqzfr876c2xrfmj8plrygupe3n9my775hn2dzherud3fct5pu24jas")
+    Address("component_sim1crddvntx2dfpsh4d6tamqqnxwr9qnlc3wluwtt43pfej69rjc9045z")
     "add_liquidity"
     Bucket("x_bucket_1")
     Bucket("y_bucket_1")
