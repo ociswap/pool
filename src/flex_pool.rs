@@ -24,11 +24,13 @@ mod flex_pool {
             remove_liquidity            => PUBLIC;
             removable_liquidity         => PUBLIC;
             x_share                     => PUBLIC;
+            y_share                     => PUBLIC;
             x_address                   => PUBLIC;
             y_address                   => PUBLIC;
             x_divisibility              => PUBLIC;
             y_divisibility              => PUBLIC;
             lp_address                  => PUBLIC;
+            lp_total_supply             => PUBLIC;
             price_sqrt                  => PUBLIC;
             total_liquidity             => PUBLIC;
             input_fee_rate              => PUBLIC;
@@ -637,12 +639,30 @@ mod flex_pool {
             self.lp_manager.address()
         }
 
+        /// Retrieves the total supply of LP tokens in this pool.
+        ///
+        /// # Returns
+        /// * `Decimal` - The total amount of LP tokens currently issued by this pool.
+        ///
+        /// Note: LP tokens always have supply tracking enabled, so this will never fail.
+        pub fn lp_total_supply(&self) -> Decimal {
+            self.lp_manager.total_supply().unwrap()
+        }
+
         /// Retrieve the share of token X in the pool's total value.
         ///
         /// # Returns
         /// * A `Decimal` representing the share of token X in the pool's total value.
         pub fn x_share(&self) -> Decimal {
             self.x_share
+        }
+
+        /// Retrieve the share of token Y in the pool's total value.
+        ///
+        /// # Returns
+        /// * A `Decimal` representing the share of token Y in the pool's total value.
+        pub fn y_share(&self) -> Decimal {
+            Decimal::ONE - self.x_share
         }
 
         /// Retrieves the current input fee rate of the pool

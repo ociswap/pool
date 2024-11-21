@@ -338,8 +338,16 @@ impl FlexPoolTestHelper {
         self.getter("x_share")
     }
 
+    pub fn y_share(&mut self) -> &mut FlexPoolTestHelper {
+        self.getter("y_share")
+    }
+
     pub fn lp_address(&mut self) -> &mut FlexPoolTestHelper {
         self.getter("lp_address")
+    }
+
+    pub fn lp_total_supply(&mut self) -> &mut FlexPoolTestHelper {
+        self.getter("lp_total_supply")
     }
 
     pub fn input_fee_rate(&mut self) -> &mut FlexPoolTestHelper {
