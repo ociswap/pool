@@ -41,6 +41,11 @@ impl FlexPoolTestHelper {
             registry: RegistryTestHelper::new_with_packages(packages),
         };
 
+        helper
+            .set_dapp_definition()
+            .registry
+            .execute_expect_success(false);
+
         if instantiate_registry {
             helper
                 .registry
@@ -56,7 +61,6 @@ impl FlexPoolTestHelper {
         input_fee_rate: Decimal,
         flash_loan_fee_rate: Decimal,
         a_share: Decimal,
-        registry: ComponentAddress,
     ) -> &mut FlexPoolTestHelper {
         let package_address = self.registry.env.package_address("flex_pool");
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
@@ -71,9 +75,7 @@ impl FlexPoolTestHelper {
                 input_fee_rate,
                 flash_loan_fee_rate,
                 a_share,
-                registry,
                 hooks_buckets,
-                self.registry.env.dapp_definition
             ),
         );
         self.registry.env.new_instruction("instantiate", 1, 0);
@@ -87,7 +89,6 @@ impl FlexPoolTestHelper {
         input_fee_rate: Decimal,
         flash_loan_fee_rate: Decimal,
         a_share: Decimal,
-        registry: ComponentAddress,
         verbose: bool,
     ) -> Receipt {
         self.instantiate_full(
@@ -96,7 +97,6 @@ impl FlexPoolTestHelper {
             input_fee_rate,
             flash_loan_fee_rate,
             a_share,
-            registry,
         );
         let receipt = self.registry.execute_expect_success(verbose);
         let commit_result = receipt.execution_receipt.expect_commit_success();
@@ -114,16 +114,8 @@ impl FlexPoolTestHelper {
         b_address: ResourceAddress,
         input_fee_rate: Decimal,
         a_share: Decimal,
-        registry: ComponentAddress,
     ) -> &mut FlexPoolTestHelper {
-        self.instantiate_full(
-            a_address,
-            b_address,
-            input_fee_rate,
-            dec!(0.009),
-            a_share,
-            registry,
-        )
+        self.instantiate_full(a_address, b_address, input_fee_rate, dec!(0.009), a_share)
     }
 
     pub fn instantiate_with_liquidity(
@@ -133,7 +125,6 @@ impl FlexPoolTestHelper {
         b_address: ResourceAddress,
         b_amount: Decimal,
         input_fee_rate: Decimal,
-        registry: ComponentAddress,
     ) -> &mut FlexPoolTestHelper {
         let account = self.registry.env.account;
         let package_address = self.registry.env.package_address("flex_pool");
@@ -157,9 +148,7 @@ impl FlexPoolTestHelper {
                         input_fee_rate,
                         dec!(0.009),
                         dec!(0.5),
-                        registry,
                         hooks_buckets,
-                        self.registry.env.dapp_definition
                     ),
                 )
             });
@@ -400,13 +389,7 @@ impl FlexPoolTestHelper {
         verbose: bool,
     ) -> Receipt {
         self.set_whitelist_registry();
-        self.instantiate(
-            self.x_address(),
-            self.y_address(),
-            fee_rate,
-            dec!(0.5),
-            self.registry.registry_address.unwrap(),
-        );
+        self.instantiate(self.x_address(), self.y_address(), fee_rate, dec!(0.5));
         let receipt = self.registry.execute_expect_success(verbose);
         let commit_result = receipt.execution_receipt.expect_commit_success();
         let (pool_address, lp_address): (ComponentAddress, ResourceAddress) =
@@ -431,13 +414,7 @@ impl FlexPoolTestHelper {
             1,
         );
         self.set_whitelist_registry();
-        self.instantiate(
-            self.x_address(),
-            self.y_address(),
-            fee_rate,
-            a_share,
-            self.registry.registry_address.unwrap(),
-        );
+        self.instantiate(self.x_address(), self.y_address(), fee_rate, a_share);
         let receipt = self.registry.execute_expect_success(verbose);
         let commit_result = receipt.execution_receipt.expect_commit_success();
         let (pool_address, lp_address): (ComponentAddress, ResourceAddress) =
@@ -449,13 +426,7 @@ impl FlexPoolTestHelper {
     }
 
     pub fn instantiate_pool_only(&mut self, verbose: bool) -> Receipt {
-        self.instantiate(
-            self.x_address(),
-            self.y_address(),
-            dec!(0),
-            dec!(0.5),
-            self.registry.registry_address.unwrap(),
-        );
+        self.instantiate(self.x_address(), self.y_address(), dec!(0), dec!(0.5));
         let receipt = self.registry.execute_expect_success(verbose);
         let commit_result = receipt.execution_receipt.expect_commit_success();
         let (pool_address, lp_address): (ComponentAddress, ResourceAddress) =
@@ -505,9 +476,7 @@ impl FlexPoolTestHelper {
                         dec!(0),
                         dec!(0.009),
                         dec!(0.5),
-                        self.registry.registry_address.unwrap(),
                         hooks_buckets,
-                        self.registry.env.dapp_definition
                     ),
                 )
             });
@@ -816,12 +785,11 @@ impl FlexPoolTestHelper {
                 self.y_address(),
                 y_input,
                 input_fee_rate,
-                self.registry.registry_address.unwrap(),
             )
             .registry
             .execute_expect_success(false);
         let commit_result = receipt.execution_receipt.expect_commit_success();
-        let (pool_address, _, _): (ComponentAddress, Bucket, Option<Bucket>) =
+        let (pool_address, _): (ComponentAddress, Bucket) =
             receipt.outputs("instantiate_with_liquidity")[0];
         self.pool_address = Some(pool_address);
         self.lp_address = Some(commit_result.new_resource_addresses()[0]);
@@ -989,18 +957,18 @@ impl FlexPoolTestHelper {
 
     pub fn set_whitelist_registry(&mut self) -> &mut FlexPoolTestHelper {
         let registry_address = self.registry.registry_address.unwrap();
-        self.set_metadata("registry_components", vec![registry_address])
+        self.set_metadata("registry", registry_address)
     }
 
     pub fn set_whitelist_registry_value(
         &mut self,
         value: impl ToMetadataEntry,
     ) -> &mut FlexPoolTestHelper {
-        self.set_metadata("registry_components", value)
+        self.set_metadata("registry", value)
     }
 
     pub fn lock_whitelist_registry(&mut self) -> &mut FlexPoolTestHelper {
-        self.lock_metadata("registry_components")
+        self.lock_metadata("registry")
     }
 
     pub fn set_whitelist_hook(&mut self, package_name: &str) -> &mut FlexPoolTestHelper {
@@ -1028,6 +996,11 @@ impl FlexPoolTestHelper {
             .map(|package_name| self.registry.env.package_address(package_name).into())
             .collect();
         self.set_metadata(metadata_key, global_package_addresses)
+    }
+
+    pub fn set_dapp_definition(&mut self) -> &mut FlexPoolTestHelper {
+        let account_address = self.registry.env.account;
+        self.set_metadata("dapp_definition", account_address)
     }
 
     pub fn set_metadata(

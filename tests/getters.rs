@@ -27,7 +27,6 @@ fn test_getters_after_instantiation() {
         input_fee_rate,
         flash_loan_fee_rate,
         x_share,
-        helper.registry.registry_address.unwrap(),
         false,
     );
 
@@ -115,7 +114,6 @@ fn test_after_first_transaction() {
         input_fee_rate,
         flash_loan_fee_rate,
         x_share,
-        helper.registry.registry_address.unwrap(),
         false,
     );
 
