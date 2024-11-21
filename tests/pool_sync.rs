@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod pool_sync {
+mod registry_sync {
     use flex_pool_test_helper::*;
     use pretty_assertions::assert_eq;
     use radix_engine::system::system_modules::execution_trace::ResourceSpecifier::Amount;
