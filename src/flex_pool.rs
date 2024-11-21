@@ -90,19 +90,19 @@ mod flex_pool {
         /// ## Arguments
         /// - `a_address`: ResourceAddress for token A used in this pool.
         /// - `b_address`: ResourceAddress for token B used in this pool.
-        /// - `input_fee_rate`: Fee rate applied to swap inputs (between 0 and 1).
+        /// - `input_fee_rate`: Fee rate applied to swap inputs (between 0 and 1, e.g., 0.03 for 3%).
         /// - `flash_loan_fee_rate`: Fee rate applied to flash loans.
         /// - `a_share`: Share of token A in the pool value. For a balanced 50/50 pool, this would be 0.5. For an imbalanced 80/20 pool, this would be 0.8 or 0.2 depending on the sorting of the addresses.
-        /// - `registry_address`: Address of the registry for protocol fee configuration and collection.
         /// - `hook_badges`: Vector of tuples containing hook components and associated badges for access control.
-        /// - `dapp_definition`: Address of the dApp definition component.
         ///
         /// ## Returns
-        /// A global reference to the instantiated `FlexPool`.
+        /// - A tuple containing:
+        ///   - A global reference to the instantiated `FlexPool`.
+        ///   - A bucket containing the LP tokens representing the initial liquidity position.
         ///
         /// ## Panics
         /// - If `a_address` and `b_address` are the same.
-        /// - If `a_share` is not within the range ]0, 1[.
+        /// - If `a_share` is not within the range [0.05, 0.95].
         /// - If `input_fee_rate` or `flash_loan_fee_rate` are not within valid ranges.
         /// - If either `a_address` or `b_address` do not point to fungible tokens.
         pub fn instantiate(
@@ -317,9 +317,7 @@ mod flex_pool {
         /// - `input_fee_rate`: The fee rate charged on swaps (e.g., 0.03 for 3%).
         /// - `flash_loan_fee_rate`: The fee rate charged on flash loans.
         /// - `a_share`: Share of token A in the pool value. For a balanced 50/50 pool, this would be 0.5. For an imbalanced 80/20 pool, this would be 0.8 or 0.2 depending on the sorting of the addresses.
-        /// - `registry_address`: The address of the registry for managing protocol configurations.
         /// - `hook_badges`: A vector of tuples pairing component addresses with badges, controlling access to callable hooks.
-        /// - `dapp_definition`: Address of the dApp definition component associated with this pool.
         ///
         /// ## Returns
         /// - A tuple containing:
@@ -328,7 +326,7 @@ mod flex_pool {
         ///
         /// ## Panics
         /// - If the token addresses for A and B are the same.
-        /// - If the `a_share` is not within the range ]0, 1[.
+        /// - If the `a_share` is not within the range [0.05, 0.95].
         /// - If `input_fee_rate` or `flash_loan_fee_rate` are not within valid ranges.
         /// - If either `a_address` or `b_address` do not point to fungible tokens.
         pub fn instantiate_with_liquidity(
