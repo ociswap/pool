@@ -31,7 +31,7 @@ fn test_getters_after_instantiation() {
     );
 
     helper.price_sqrt();
-    helper.vault_amounts();
+    helper.total_liquidity();
     helper.input_fee_rate();
     helper.fee_protocol_share();
     helper.flash_loan_fee_rate();
@@ -40,7 +40,8 @@ fn test_getters_after_instantiation() {
     let receipt = helper.registry.execute_expect_success(false);
 
     let price_sqrt_returned: Vec<Option<PreciseDecimal>> = receipt.outputs("price_sqrt");
-    let vault_amounts_returned: Vec<(Decimal, Decimal)> = receipt.outputs("vault_amounts");
+    let total_liquidity_returned: Vec<IndexMap<ResourceAddress, Decimal>> =
+        receipt.outputs("total_liquidity");
     let input_fee_rate_returned: Vec<Decimal> = receipt.outputs("input_fee_rate");
     let fee_protocol_share_returned: Vec<Decimal> = receipt.outputs("fee_protocol_share");
     let flash_loan_fee_rate_returned: Vec<Decimal> = receipt.outputs("flash_loan_fee_rate");
@@ -48,14 +49,14 @@ fn test_getters_after_instantiation() {
     assert_eq!(
         (
             price_sqrt_returned,
-            vault_amounts_returned,
+            total_liquidity_returned,
             input_fee_rate_returned,
             fee_protocol_share_returned,
             flash_loan_fee_rate_returned
         ),
         (
             vec![None],
-            vec![(dec!(0), dec!(0))],
+            vec![indexmap! { helper.x_address() => dec!(0), helper.y_address() => dec!(0) }],
             vec![input_fee_rate],
             vec![dec!(0)],
             vec![flash_loan_fee_rate]
@@ -117,7 +118,7 @@ fn test_after_first_transaction() {
     );
 
     helper.add_liquidity_default(dec!(100), dec!(100));
-    helper.vault_amounts();
+    helper.total_liquidity();
 
     let receipt_1 = helper.registry.execute_expect_success(false);
 
@@ -125,11 +126,15 @@ fn test_after_first_transaction() {
     helper.fee_protocol_share();
     let receipt_2 = helper.registry.execute_expect_success(false);
 
-    let vault_amounts_returned: Vec<(Decimal, Decimal)> = receipt_1.outputs("vault_amounts");
+    let total_liquidity_returned: Vec<IndexMap<ResourceAddress, Decimal>> =
+        receipt_1.outputs("total_liquidity");
     let fee_protocol_share_returned: Vec<Decimal> = receipt_2.outputs("fee_protocol_share");
 
     assert_eq!(
-        (vault_amounts_returned, fee_protocol_share_returned,),
-        (vec![(dec!(100), dec!(100))], vec![fee_protocol_share])
+        (total_liquidity_returned, fee_protocol_share_returned,),
+        (
+            vec![indexmap! { helper.x_address() => dec!(100), helper.y_address() => dec!(100) }],
+            vec![fee_protocol_share]
+        )
     );
 }

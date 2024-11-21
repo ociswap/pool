@@ -301,8 +301,8 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn vault_amounts(&mut self) -> &mut FlexPoolTestHelper {
-        self.getter("vault_amounts")
+    pub fn total_liquidity(&mut self) -> &mut FlexPoolTestHelper {
+        self.getter("total_liquidity")
     }
 
     pub fn liquidity(&mut self) -> &mut FlexPoolTestHelper {
