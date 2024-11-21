@@ -821,7 +821,7 @@ impl FlexPoolTestHelper {
             .registry
             .execute_expect_success(false);
         let commit_result = receipt.execution_receipt.expect_commit_success();
-        let (pool_address, _, _): (ComponentAddress, Bucket, Option<Bucket>) =
+        let (pool_address, _): (ComponentAddress, Bucket) =
             receipt.outputs("instantiate_with_liquidity")[0];
         self.pool_address = Some(pool_address);
         self.lp_address = Some(commit_result.new_resource_addresses()[0]);
