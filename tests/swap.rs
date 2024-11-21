@@ -516,9 +516,7 @@ fn swap_with_max_x_max_y_liquidity_buy_x_max_y() {
 #[test]
 fn test_swap_instantiate_with_liquidity_with_fees() {
     let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    helper.set_whitelist_registry();
     helper.instantiate_with_liquidity_success(
         dec!(100000),
         dec!(5000),
@@ -548,6 +546,7 @@ fn swap_lp_fees_max_percent_protocol() {
 #[test]
 fn test_lower_divisibility() {
     let mut helper = FlexPoolTestHelper::new();
+    helper.set_whitelist_registry();
     let stable_address = helper.registry.env.test_runner.create_fungible_resource(
         dec!(10000000),
         6,

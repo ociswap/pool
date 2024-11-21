@@ -16,19 +16,37 @@ pub struct FlexPoolTestHelper {
 
 impl FlexPoolTestHelper {
     pub fn new() -> FlexPoolTestHelper {
+        Self::new_internal(true)
+    }
+
+    pub fn new_without_instantiate_registry() -> FlexPoolTestHelper {
+        Self::new_internal(false)
+    }
+
+    fn new_internal(instantiate_registry: bool) -> FlexPoolTestHelper {
         let packages: HashMap<&str, &str> = vec![("registry", "registry"), ("flex_pool", ".")]
             .into_iter()
             .collect();
-        Self::new_with_packages(packages)
+        Self::new_with_packages(packages, instantiate_registry)
     }
 
-    pub fn new_with_packages(packages: HashMap<&str, &str>) -> FlexPoolTestHelper {
-        FlexPoolTestHelper {
+    pub fn new_with_packages(
+        packages: HashMap<&str, &str>,
+        instantiate_registry: bool,
+    ) -> FlexPoolTestHelper {
+        let mut helper = FlexPoolTestHelper {
             pool_address: None,
             lp_address: None,
             liquidity_pool_address: None,
             registry: RegistryTestHelper::new_with_packages(packages),
+        };
+
+        if instantiate_registry {
+            helper
+                .registry
+                .instantiate_default(helper.registry.admin_badge_address());
         }
+        helper
     }
 
     pub fn instantiate_full(
@@ -381,8 +399,7 @@ impl FlexPoolTestHelper {
         fee_rate: Decimal,
         verbose: bool,
     ) -> Receipt {
-        self.registry
-            .instantiate_default(self.registry.admin_badge_address());
+        self.set_whitelist_registry();
         self.instantiate(
             self.x_address(),
             self.y_address(),
@@ -413,6 +430,7 @@ impl FlexPoolTestHelper {
             1,
             1,
         );
+        self.set_whitelist_registry();
         self.instantiate(
             self.x_address(),
             self.y_address(),
@@ -617,7 +635,7 @@ impl FlexPoolTestHelper {
         repay_fee_amount: Decimal,
         remainder_expected: Decimal,
     ) -> &mut FlexPoolTestHelper {
-        self.instantiate_default(true);
+        self.instantiate_default(false);
         let receipt = self
             .add_liquidity_default(dec!(10), dec!(10))
             .flash_loan_address()
@@ -651,7 +669,7 @@ impl FlexPoolTestHelper {
         repay_amount: Decimal,
         repay_fee_amount: Decimal,
     ) -> &mut FlexPoolTestHelper {
-        self.instantiate_default(true);
+        self.instantiate_default(false);
         let receipt = self
             .add_liquidity_default(dec!(10), dec!(10))
             .flash_loan_address()
@@ -772,6 +790,10 @@ impl FlexPoolTestHelper {
         self.registry.env.k_nft_address
     }
 
+    pub fn admin_badge_address(&self) -> ResourceAddress {
+        self.registry.env.admin_badge_address
+    }
+
     pub fn add_liquidity_failure(&mut self, x_input: Decimal, y_input: Decimal) {
         self.add_liquidity_default(x_input, y_input)
             .registry
@@ -787,8 +809,6 @@ impl FlexPoolTestHelper {
         x_remainder_expected: Decimal,
         y_remainder_expected: Decimal,
     ) -> Vec<Vec<ResourceSpecifier>> {
-        self.registry
-            .instantiate_default(self.registry.admin_badge_address());
         let receipt = self
             .instantiate_with_liquidity(
                 self.x_address(),
@@ -966,6 +986,83 @@ impl FlexPoolTestHelper {
             .unwrap();
         println!("{:?}", meta);
     }
+
+    pub fn set_whitelist_registry(&mut self) -> &mut FlexPoolTestHelper {
+        let registry_address = self.registry.registry_address.unwrap();
+        self.set_metadata("registry_components", vec![registry_address])
+    }
+
+    pub fn set_whitelist_registry_value(
+        &mut self,
+        value: impl ToMetadataEntry,
+    ) -> &mut FlexPoolTestHelper {
+        self.set_metadata("registry_components", value)
+    }
+
+    pub fn lock_whitelist_registry(&mut self) -> &mut FlexPoolTestHelper {
+        self.lock_metadata("registry_components")
+    }
+
+    pub fn set_whitelist_hook(&mut self, package_name: &str) -> &mut FlexPoolTestHelper {
+        self.set_whitelist_packages("hook_packages", vec![package_name])
+    }
+
+    pub fn set_whitelist_hook_value(
+        &mut self,
+        value: impl ToMetadataEntry,
+    ) -> &mut FlexPoolTestHelper {
+        self.set_metadata("hook_packages", value)
+    }
+
+    pub fn lock_whitelist_hook(&mut self) -> &mut FlexPoolTestHelper {
+        self.lock_metadata("hook_packages")
+    }
+
+    pub fn set_whitelist_packages(
+        &mut self,
+        metadata_key: &str,
+        package_names: Vec<&str>,
+    ) -> &mut FlexPoolTestHelper {
+        let global_package_addresses: Vec<GlobalAddress> = package_names
+            .iter()
+            .map(|package_name| self.registry.env.package_address(package_name).into())
+            .collect();
+        self.set_metadata(metadata_key, global_package_addresses)
+    }
+
+    pub fn set_metadata(
+        &mut self,
+        key: impl Into<String>,
+        value: impl ToMetadataEntry,
+    ) -> &mut FlexPoolTestHelper {
+        let precision_pool_package_address: GlobalAddress =
+            self.registry.env.package_address("flex_pool").into();
+        let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
+        self.registry.env.manifest_builder = manifest_builder
+            .create_proof_from_account_of_amount(
+                self.registry.env().account,
+                self.admin_badge_address(),
+                dec!(1),
+            )
+            .set_metadata(precision_pool_package_address, key, value);
+        self.registry.env.new_instruction("set_metadata", 2, 1);
+        self
+    }
+
+    pub fn lock_metadata(&mut self, key: impl Into<String>) -> &mut FlexPoolTestHelper {
+        let precision_pool_package_address: GlobalAddress =
+            self.registry.env.package_address("flex_pool").into();
+        let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
+        self.registry.env.manifest_builder = manifest_builder
+            .create_proof_from_account_of_amount(
+                self.registry.env().account,
+                self.admin_badge_address(),
+                dec!(1),
+            )
+            .lock_metadata(precision_pool_package_address, key);
+        self.registry.env.new_instruction("lock_metadata", 2, 1);
+        self
+    }
 }
 
 pub trait AttoDecimal {
@@ -989,10 +1086,9 @@ pub fn swap_with_hook_action_test(
     ]
     .into_iter()
     .collect();
-    let mut helper = FlexPoolTestHelper::new_with_packages(packages);
-    helper
-        .registry
-        .instantiate_default(helper.registry.admin_badge_address());
+    let mut helper = FlexPoolTestHelper::new_with_packages(packages, true);
+    helper.set_whitelist_registry();
+    helper.set_whitelist_hook("test_hook");
 
     let package_address = helper.registry.env.package_address("test_hook");
     let manifest_builder = mem::replace(

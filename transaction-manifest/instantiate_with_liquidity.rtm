@@ -26,7 +26,7 @@ TAKE_FROM_WORKTOP
     Bucket("b_bucket_1")
 ;
 CALL_FUNCTION
-    Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
+    Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
     "FlexPool"
     "instantiate_with_liquidity"
     Bucket("a_bucket_1")
@@ -34,7 +34,7 @@ CALL_FUNCTION
     Decimal("0")
     Decimal("0.009")
     Decimal("0.5")
-    Address("component_sim1cpzcqnwlqvax740a8rlw2zncsa7qq6j7zl06hecuh2prf7qktuyee6")
+    Address("component_sim1cq9uf6qzpguhs3cr65qn7mc822yhwad088q69wzcckzqfc3nwtxyyn")
     Array<Tuple>()
     Address("account_sim1cy8k0r7zhxw9gsn3pwgge6psmtdrkd5j5gy9nz0v5xx6a43xk89tts")
 ;
