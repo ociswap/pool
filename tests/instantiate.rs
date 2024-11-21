@@ -192,12 +192,14 @@ fn test_instantiate_input_fee_rate(input_fee_rate: Decimal, success: bool) {
 }
 
 #[test_case(-Decimal::ATTO, false ; "negative")]
-#[test_case(dec!("0"), false ; "zero")]
-#[test_case(Decimal::ATTO, true ; "atto")]
-#[test_case(dec!("0.2"), true ; "valid_1")]
-#[test_case(dec!("0.8"), true ; "valid_2")]
-#[test_case(dec!("1"), false ; "one")]
-#[test_case(dec!(1) + Decimal::ATTO, false ; "more_than_one")]
+#[test_case(dec!(0), false ; "zero")]
+#[test_case(dec!(0.05) - Decimal::ATTO, false ; "invalid_smaller")]
+#[test_case(dec!(0.05), true ; "smallest_share")]
+#[test_case(dec!(0.2), true ; "medium_share")]
+#[test_case(dec!(0.8), true ; "medium_share_2")]
+#[test_case(dec!(0.95), true; "largest_share")]
+#[test_case(dec!(0.95) + Decimal::ATTO, false ; "invalid_larger")]
+#[test_case(dec!(1), false ; "one")]
 fn test_instantiate_a_share(a_share: Decimal, success: bool) {
     let mut helper = FlexPoolTestHelper::new();
     helper

@@ -22,7 +22,7 @@ fn test_swap_sell_x() {
         dec!(0),
         dec!(0),
     );
-    helper.swap_success(helper.x_address(), dec!(10), dec!("0.49996875156237"));
+    helper.swap_success(helper.x_address(), dec!(10), dec!("0.49996875156192"));
     let mut helper = FlexPoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), true);
     helper.add_liquidity_success(
@@ -32,7 +32,7 @@ fn test_swap_sell_x() {
         dec!(0),
         dec!(0),
     );
-    helper.swap_success(helper.x_address(), dec!(10), dec!("0.49996875234336"));
+    helper.swap_success(helper.x_address(), dec!(10), dec!("0.49996875234156"));
 }
 
 #[test]
@@ -56,7 +56,7 @@ fn test_swap_buy_x() {
         dec!(0),
         dec!(0),
     );
-    helper.swap_success(helper.y_address(), dec!(10), dec!("199.7503743916552"));
+    helper.swap_success(helper.y_address(), dec!(10), dec!("199.7503743916192"));
     let mut helper = FlexPoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), true);
     helper.add_liquidity_success(
@@ -66,7 +66,7 @@ fn test_swap_buy_x() {
         dec!(0),
         dec!(0),
     );
-    helper.swap_success(helper.y_address(), dec!(10), dec!("199.7502497814238"));
+    helper.swap_success(helper.y_address(), dec!(10), dec!("199.7502497814148"));
 }
 
 #[test]

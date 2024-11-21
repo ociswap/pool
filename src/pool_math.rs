@@ -1,6 +1,10 @@
 use std::cmp::min;
 
-use common::{math::DivisibilityRounding, pools::SwapType};
+use crate::constants::POW_ERROR_MARGIN;
+use common::{
+    math::{AttoPreciseDecimal, DivisibilityRounding},
+    pools::SwapType,
+};
 use scrypto::prelude::*;
 use scrypto_math::PowerDecimal;
 
@@ -246,23 +250,34 @@ fn output_amount_imbalanced(
     ratio: Decimal,
     swap_type: SwapType,
 ) -> PreciseDecimal {
+    // Calculate the input vault's share after the swap by dividing input vault amount by total amount.
+    // We add ATTO to ensure the share is slightly larger than exact value, which favors the pool
+    // by effectively reducing the input amount used in calculations.
+    let input_vault_share = ((input_vault / (input_vault + input_amount_net))
+        + PreciseDecimal::ATTO)
+        .checked_truncate(RoundingMode::ToPositiveInfinity)
+        .unwrap();
+
     // Determine the weight based on the swap type
     // ratio = x_share / y_share
+    // The division truncating the inverse ratio leads to a potentially larger output share,
+    // with input_vault_share in [0, 1] and weight in [0.05, 20], which is safe for the pool.
     let weight = match swap_type {
         SwapType::BuyX => dec!(1) / ratio, // the weight is the inverse of the ratio
         SwapType::SellX => ratio,          // the weight is the ratio itself
     };
 
-    // Calculate the share of the output vault after the swap
-    let output_vault_share = (input_vault / (input_vault + input_amount_net))
-        .checked_truncate(RoundingMode::ToPositiveInfinity)
-        .unwrap()
-        .pow(weight)
-        .unwrap();
-    let output_vault_share = min(dec!(1), output_vault_share + dec!(0.00000000000000001)); // Adjust for precision errors
+    // Calculate the share of the output vault after the swap.
+    // Output vault share needs to be larger to ensure safe handling by the pool.
+    // We add a small correction value to account for precision errors in pow().
+    // When input_vault_share is small and weight is large, output_vault_share
+    // could be very small or zero. The safety margin ensures it stays within bounds.
+    let output_vault_share = input_vault_share.pow(weight).unwrap();
+    let output_vault_share = min(dec!(1), output_vault_share + POW_ERROR_MARGIN); // Adjust for precision errors
 
-    // Calculate the output amount
-    let output_amount = output_vault * (dec!(1) - output_vault_share); // Larger share results in smaller output amount
+    // Calculate the output amount by multiplying the output vault by the complement of the output vault share.
+    // A larger output_vault_share means less tokens are available for output.
+    let output_amount = output_vault * (dec!(1) - output_vault_share);
 
     output_amount
 }
