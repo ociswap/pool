@@ -113,8 +113,8 @@ mod flex_pool {
         ) -> (Global<FlexPool>, ResourceAddress) {
             // Validity assertions
             assert!(
-                dec!(0) < a_share && a_share < dec!(1),
-                "The share of token A must be strictly between 0 and 1 (excluding bounds)!"
+                MINIMUM_SHARE <= a_share && a_share <= MAXIMUM_SHARE,
+                "The share of token A must be strictly between {MINIMUM_SHARE} and {MAXIMUM_SHARE}!"
             );
 
             let (x_address, y_address) = check_and_sort_addresses(a_address, b_address);
