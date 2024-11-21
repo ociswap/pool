@@ -321,7 +321,6 @@ mod flex_pool {
         /// - A tuple containing:
         ///   - A global reference to the instantiated `FlexPool`.
         ///   - A bucket containing the LP tokens representing the initial liquidity position.
-        ///   - An optional bucket containing any remaining unallocated tokens.
         ///
         /// ## Panics
         /// - If the token addresses for A and B are the same.
@@ -337,7 +336,7 @@ mod flex_pool {
             registry_address: ComponentAddress,
             hook_badges: Vec<(ComponentAddress, Bucket)>,
             dapp_definition: ComponentAddress,
-        ) -> (Global<FlexPool>, Bucket, Option<Bucket>) {
+        ) -> (Global<FlexPool>, Bucket) {
             let (pool, _) = Self::instantiate(
                 a_bucket.resource_address(),
                 b_bucket.resource_address(),
@@ -348,8 +347,9 @@ mod flex_pool {
                 hook_badges,
                 dapp_definition,
             );
-            let (lp_token, remainder) = pool.add_liquidity(a_bucket, b_bucket);
-            (pool, lp_token, remainder)
+            // When adding initial liquidity, there is no existing ratio to match, so no remainder is possible
+            let (lp_token, _) = pool.add_liquidity(a_bucket, b_bucket);
+            (pool, lp_token)
         }
 
         /// Add liquidity to the Pool by providing both tokens.
