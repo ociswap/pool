@@ -4,7 +4,7 @@ use crate::constants::*;
 use crate::pool_math::*;
 use crate::utils::*;
 use common::math::DivisibilityRounding;
-use common::metadata::{assert_component_packages_are_approved, assert_components_are_approved};
+use common::metadata::{address_from_metadata, assert_component_packages_are_approved};
 use common::pools::*;
 use common::time::*;
 use flex_pool_hooks::*;
@@ -109,9 +109,7 @@ mod flex_pool {
             input_fee_rate: Decimal,
             flash_loan_fee_rate: Decimal,
             a_share: Decimal,
-            registry_address: ComponentAddress,
             hook_badges: Vec<(ComponentAddress, Bucket)>,
-            dapp_definition: ComponentAddress,
         ) -> (Global<FlexPool>, ResourceAddress) {
             // Validity assertions
             assert!(
@@ -124,7 +122,11 @@ mod flex_pool {
             assert_input_fee_rate_is_valid(input_fee_rate);
             assert_flash_loan_fee_rate_is_valid(flash_loan_fee_rate);
 
-            assert_components_are_approved("registry_components", vec![registry_address]);
+            let registry_address: ComponentAddress =
+                address_from_metadata("registry").expect("Failed to get registry from metadata");
+            let dapp_definition: ComponentAddress = address_from_metadata("dapp_definition")
+                .expect("Failed to get dapp definition from metadata");
+
             assert_component_packages_are_approved(
                 "hook_packages",
                 hook_badges.iter().map(|(address, _)| *address).collect(),
@@ -333,9 +335,7 @@ mod flex_pool {
             input_fee_rate: Decimal,
             flash_loan_fee_rate: Decimal,
             a_share: Decimal,
-            registry_address: ComponentAddress,
             hook_badges: Vec<(ComponentAddress, Bucket)>,
-            dapp_definition: ComponentAddress,
         ) -> (Global<FlexPool>, Bucket) {
             let (pool, _) = Self::instantiate(
                 a_bucket.resource_address(),
@@ -343,9 +343,7 @@ mod flex_pool {
                 input_fee_rate,
                 flash_loan_fee_rate,
                 a_share,
-                registry_address,
                 hook_badges,
-                dapp_definition,
             );
             // When adding initial liquidity, there is no existing ratio to match, so no remainder is possible
             let (lp_token, _) = pool.add_liquidity(a_bucket, b_bucket);

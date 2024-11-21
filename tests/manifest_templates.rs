@@ -12,13 +12,7 @@ fn test_dump_instantiate() {
     helper
         .registry
         .instantiate_default(helper.registry.admin_badge_address());
-    helper.instantiate(
-        helper.x_address(),
-        helper.y_address(),
-        dec!(0),
-        dec!(0.5),
-        helper.registry.registry_address.unwrap(),
-    );
+    helper.instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
         .deposit_batch(helper.registry.env.account);
     dump_manifest_to_file_system(
@@ -43,7 +37,6 @@ fn test_dump_instantiate_with_liquidity() {
         helper.y_address(),
         dec!(30),
         dec!(0),
-        helper.registry.registry_address.unwrap(),
     );
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
         .deposit_batch(helper.registry.env.account);

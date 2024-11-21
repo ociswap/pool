@@ -11,11 +11,9 @@ CALL_METHOD
 ;
 SET_METADATA
     Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
-    "registry_components"
-    Enum<136u8>(
-        Array<Address>(
-            Address("component_sim1cpzcqnwlqvax740a8rlw2zncsa7qq6j7zl06hecuh2prf7qktuyee6")
-        )
+    "registry"
+    Enum<8u8>(
+        Address("component_sim1cq9uf6qzpguhs3cr65qn7mc822yhwad088q69wzcckzqfc3nwtxyyn")
     )
 ;
 CALL_METHOD
@@ -26,7 +24,7 @@ CALL_METHOD
 ;
 LOCK_METADATA
     Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
-    "registry_components"
+    "registry"
 ;
 CALL_METHOD
     Address("account_sim1c8m6h4yv2x9ca0wx5ddtl0nctqmjt2t740wfjgj9w8sdz82zf8ppcr")

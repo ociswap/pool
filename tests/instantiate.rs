@@ -11,13 +11,7 @@ fn test_instantiate() {
     let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
     helper.set_whitelist_registry();
     let receipt = helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
         .registry
         .execute_expect_success(false);
     let outputs: Vec<(ComponentAddress, ResourceAddress)> = receipt.outputs("instantiate");
@@ -30,13 +24,7 @@ fn test_instantiate_same_token() {
     let mut helper = FlexPoolTestHelper::new();
     helper.set_whitelist_registry();
     helper
-        .instantiate(
-            helper.x_address(),
-            helper.x_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), helper.x_address(), dec!(0), dec!(0.5))
         .registry
         .execute_expect_failure(false);
 }
@@ -53,13 +41,7 @@ fn test_instantiate_random_address_token() {
     .unwrap();
     helper.set_whitelist_registry();
     helper
-        .instantiate(
-            helper.x_address(),
-            random_address,
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), random_address, dec!(0), dec!(0.5))
         .registry
         .execute_expect_rejection(false);
 }
@@ -74,7 +56,6 @@ fn test_instantiate_nft_addresses_both() {
             helper.k_nft_address(),
             dec!(0),
             dec!(0.5),
-            helper.registry.registry_address.unwrap(),
         )
         .registry
         .execute_expect_failure(false);
@@ -90,7 +71,6 @@ fn test_instantiate_nft_address_x() {
             helper.y_address(),
             dec!(0),
             dec!(0.5),
-            helper.registry.registry_address.unwrap(),
         )
         .registry
         .execute_expect_failure(false);
@@ -106,7 +86,6 @@ fn test_instantiate_nft_address_y() {
             helper.k_nft_address(),
             dec!(0),
             dec!(0.5),
-            helper.registry.registry_address.unwrap(),
         )
         .registry
         .execute_expect_failure(false);
@@ -123,7 +102,6 @@ fn test_instantiate_pool_with_lp_token() {
             helper.lp_address.unwrap(),
             dec!(0),
             dec!(0.5),
-            helper.registry.registry_address.unwrap(),
         )
         .registry
         .execute_expect_success(false); // We can have a Pool with lp tokens.
@@ -133,13 +111,7 @@ fn test_instantiate_pool_with_lp_token() {
 fn test_instantiate_wrong_order() {
     let mut helper = FlexPoolTestHelper::new();
     helper.set_whitelist_registry();
-    helper.instantiate(
-        helper.y_address(),
-        helper.x_address(),
-        dec!(0),
-        dec!(0.5),
-        helper.registry.registry_address.unwrap(),
-    );
+    helper.instantiate(helper.y_address(), helper.x_address(), dec!(0), dec!(0.5));
     let receipt = helper.registry.execute_expect_success(false);
     let (pool_address, _): (ComponentAddress, ResourceAddress) = receipt.outputs("instantiate")[0];
     helper.pool_address = Some(pool_address);
@@ -163,7 +135,6 @@ fn test_instantiate_input_fee_rate(input_fee_rate: Decimal, success: bool) {
         helper.y_address(),
         input_fee_rate,
         dec!(0.5),
-        helper.registry.registry_address.unwrap(),
     );
 
     if success {
@@ -185,13 +156,7 @@ fn test_instantiate_input_fee_rate(input_fee_rate: Decimal, success: bool) {
 fn test_instantiate_a_share(a_share: Decimal, success: bool) {
     let mut helper = FlexPoolTestHelper::new();
     helper.set_whitelist_registry();
-    helper.instantiate(
-        helper.x_address(),
-        helper.y_address(),
-        dec!(0),
-        a_share,
-        helper.registry.registry_address.unwrap(),
-    );
+    helper.instantiate(helper.x_address(), helper.y_address(), dec!(0), a_share);
 
     if success {
         helper.registry.execute_expect_success(false);
@@ -227,13 +192,7 @@ fn test_instantiate_registry_metadata_other_value_type() {
     let mut helper = FlexPoolTestHelper::new();
     helper.set_whitelist_registry_value("OTHER");
     helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
         .registry
         .execute_expect_failure(false);
 }
@@ -243,86 +202,43 @@ fn test_instantiate_registry_metadata_other_value_type_vec() {
     let mut helper = FlexPoolTestHelper::new();
     helper.set_whitelist_registry_value(vec!["FAKE"]);
     helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
         .registry
         .execute_expect_failure(false);
 }
 
 #[test]
-fn test_instantiate_registry_metadata_other_package_address() {
+fn test_instantiate_registry_metadata_other_component_address() {
+    // For completeness: setting the wrong registry in the metadata is out of scope of the blueprint validation.
     let mut helper = FlexPoolTestHelper::new();
     let global_address: GlobalAddress = helper.registry.env.account.into();
-    helper.set_whitelist_registry_value(vec![global_address]);
+    helper.set_whitelist_registry_value(global_address);
     helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
+        .registry
+        .execute_expect_success(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_valid_registry_address() {
+    let mut helper = FlexPoolTestHelper::new();
+    let global_address: GlobalAddress = helper.registry.registry_address.unwrap().into();
+    helper.set_whitelist_registry_value(global_address);
+    helper
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
+        .registry
+        .execute_expect_success(false);
+}
+
+#[test]
+fn test_instantiate_registry_metadata_resource_address() {
+    let mut helper = FlexPoolTestHelper::new();
+    let global_address: GlobalAddress = helper.registry.env.x_address.into();
+    helper.set_whitelist_registry_value(global_address);
+    helper
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
         .registry
         .execute_expect_failure(false);
-}
-
-#[test]
-fn test_instantiate_registry_metadata_two_package_address_registry_and_other() {
-    let mut helper = FlexPoolTestHelper::new();
-    let global_address1: GlobalAddress = helper.registry.registry_address.unwrap().into();
-    let global_address2: GlobalAddress = helper.registry.env.account.into();
-    helper.set_whitelist_registry_value(vec![global_address1, global_address2]);
-    helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
-        .registry
-        .execute_expect_success(false);
-}
-
-#[test]
-fn test_instantiate_registry_metadata_two_same_registry_package_addresses() {
-    let mut helper = FlexPoolTestHelper::new();
-    let global_address1: GlobalAddress = helper.registry.registry_address.unwrap().into();
-    let global_address2: GlobalAddress = helper.registry.registry_address.unwrap().into();
-    helper.set_whitelist_registry_value(vec![global_address1, global_address2]);
-    helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
-        .registry
-        .execute_expect_success(false);
-}
-
-#[test]
-fn test_instantiate_registry_metadata_two_addresses_registry_and_resource() {
-    let mut helper = FlexPoolTestHelper::new();
-    let global_address1: GlobalAddress = helper.registry.registry_address.unwrap().into();
-    let global_address2: GlobalAddress = helper.registry.env.x_address.into();
-    helper.set_whitelist_registry_value(vec![global_address1, global_address2]);
-    helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
-        .registry
-        .execute_expect_success(false);
 }
 
 #[test]
@@ -330,13 +246,7 @@ fn test_instantiate_registry_metadata_empty_vec() {
     let mut helper = FlexPoolTestHelper::new();
     helper.set_whitelist_registry_value(Vec::<GlobalAddress>::new());
     helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
         .registry
         .execute_expect_failure(false);
 }
@@ -345,13 +255,7 @@ fn test_instantiate_registry_metadata_empty_vec() {
 fn test_instantiate_registry_metadata_missing() {
     let mut helper = FlexPoolTestHelper::new();
     helper
-        .instantiate(
-            helper.x_address(),
-            helper.y_address(),
-            dec!(0),
-            dec!(0.5),
-            helper.registry.registry_address.unwrap(),
-        )
+        .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
         .registry
         .execute_expect_failure(false);
 }
