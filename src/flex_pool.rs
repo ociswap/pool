@@ -21,6 +21,7 @@ mod flex_pool {
             swap                        => PUBLIC;
             add_liquidity               => PUBLIC;
             remove_liquidity            => PUBLIC;
+            removable_liquidity         => PUBLIC;
             x_share                     => PUBLIC;
             x_address                   => PUBLIC;
             y_address                   => PUBLIC;
@@ -376,6 +377,20 @@ mod flex_pool {
         /// * A Bucket which contains tokens B from the LP tokens.
         pub fn remove_liquidity(&mut self, lp_token: Bucket) -> (Bucket, Bucket) {
             self.liquidity_pool.redeem(lp_token)
+        }
+
+        /// Calculates the amounts of tokens that would be received when removing liquidity from the pool.
+        ///
+        /// # Arguments
+        /// * `lp_amount`: The amount of LP tokens to calculate redemption value for.
+        ///
+        /// # Returns
+        /// * `IndexMap<ResourceAddress, Decimal>` - A map containing the resource addresses and their corresponding amounts that would be received.
+        pub fn removable_liquidity(
+            &self,
+            lp_amount: Decimal,
+        ) -> IndexMap<ResourceAddress, Decimal> {
+            self.liquidity_pool.get_redemption_value(lp_amount)
         }
 
         /// Executes a token swap within the liquidity pool.

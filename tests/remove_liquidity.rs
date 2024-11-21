@@ -10,7 +10,6 @@ fn test_remove_liquidity() {
         .add_liquidity(helper.x_address(), dec!(10), helper.y_address(), dec!(10))
         .registry
         .execute_expect_success(false);
-    println!("Lp address: {:?}", helper.lp_address.unwrap());
     helper.remove_liquidity_success(dec!(1), dec!(1), dec!(1));
 }
 
@@ -22,7 +21,6 @@ fn test_remove_liquidity_full() {
         .add_liquidity(helper.x_address(), dec!(10), helper.y_address(), dec!(10))
         .registry
         .execute_expect_success(false);
-    println!("Lp address: {:?}", helper.lp_address.unwrap());
     helper.remove_liquidity_success(dec!(10), dec!(10), dec!(10));
 }
 
@@ -136,4 +134,15 @@ fn test_remove_liquidity_after_max_swap() {
         dec!(5708990770823839524233143877.797980545530986496),
         dec!(0.0) + Decimal::ATTO, // we do have vaults empty
     );
+}
+
+#[test]
+fn test_removable_liquidity() {
+    let mut helper = FlexPoolTestHelper::new();
+    helper.instantiate_default(false);
+    helper
+        .add_liquidity(helper.x_address(), dec!(10), helper.y_address(), dec!(10))
+        .registry
+        .execute_expect_success(false);
+    helper.removable_liquidity_success(dec!(10), dec!(10), dec!(10));
 }

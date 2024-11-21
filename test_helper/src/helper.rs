@@ -198,6 +198,20 @@ impl FlexPoolTestHelper {
         self
     }
 
+    pub fn removable_liquidity(&mut self, lp_amount: Decimal) -> &mut FlexPoolTestHelper {
+        let pool_address = self.pool_address.unwrap();
+        let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
+        self.registry.env.manifest_builder = manifest_builder.call_method(
+            pool_address,
+            "removable_liquidity",
+            manifest_args!(lp_amount),
+        );
+        self.registry
+            .env
+            .new_instruction("removable_liquidity", 1, 0);
+        self
+    }
+
     pub fn redeem(
         &mut self,
         lp_address: ResourceAddress,
@@ -900,6 +914,30 @@ impl FlexPoolTestHelper {
                 Amount(self.x_address(), x_output_expected),
                 Amount(self.y_address(), y_output_expected)
             ]],
+            "\nX Amount = {:?}, Y Amount {:?}",
+            x_output_expected,
+            y_output_expected
+        );
+    }
+
+    pub fn removable_liquidity_success(
+        &mut self,
+        lp_amount: Decimal,
+        x_output_expected: Decimal,
+        y_output_expected: Decimal,
+    ) {
+        let receipt = self
+            .removable_liquidity(lp_amount)
+            .registry
+            .execute_expect_success(false);
+        let outputs: Vec<IndexMap<ResourceAddress, Decimal>> =
+            receipt.outputs("removable_liquidity");
+
+        assert_eq!(
+            outputs,
+            vec![
+                indexmap! { self.x_address() => x_output_expected, self.y_address() => y_output_expected }
+            ],
             "\nX Amount = {:?}, Y Amount {:?}",
             x_output_expected,
             y_output_expected
