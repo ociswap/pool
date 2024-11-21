@@ -723,8 +723,22 @@ impl FlexPoolTestHelper {
             .advance_to_round_at_timestamp(Round::of(current_round + 1), (seconds * 1000) as i64);
     }
 
+    pub fn advance_timestamp_by_seconds(&mut self, seconds: u64) {
+        let current_time = self
+            .registry
+            .env()
+            .test_runner
+            .get_current_time(TimePrecision::Second)
+            .seconds_since_unix_epoch as u64;
+        self.jump_to_timestamp_seconds(current_time + seconds)
+    }
+
     pub fn jump_to_timestamp_minutes(&mut self, minutes: u64) {
         self.jump_to_timestamp_seconds(minutes * 60);
+    }
+
+    pub fn advance_timestamp_by_minutes(&mut self, minutes: u64) {
+        self.advance_timestamp_by_seconds(minutes * 60);
     }
 
     pub fn a_address(&self) -> ResourceAddress {
