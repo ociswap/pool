@@ -260,8 +260,8 @@ fn output_amount_imbalanced(
 
     // Determine the weight based on the swap type
     // ratio = x_share / y_share
-    // The division truncatating the inverse ratio leads to a potentially larger output share
-    // with input_value_share in [0, 1] and weight in [0.05, 20] which is safe for the pool.
+    // The division truncating the inverse ratio leads to a potentially larger output share,
+    // with input_vault_share in [0, 1] and weight in [0.05, 20], which is safe for the pool.
     let weight = match swap_type {
         SwapType::BuyX => dec!(1) / ratio, // the weight is the inverse of the ratio
         SwapType::SellX => ratio,          // the weight is the ratio itself
