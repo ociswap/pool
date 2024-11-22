@@ -149,10 +149,11 @@ mod flex_pool {
             );
 
             // Calculate ratio
+            let b_share = 1 - a_share;
             let (ratio, x_share) = if x_address == a_address {
-                (a_share / (dec!(1) - a_share), a_share) // the larger the larger share of X in the pool
+                (a_share / b_share, a_share)
             } else {
-                ((dec!(1) - a_share) / a_share, 1 - a_share)
+                (b_share / a_share, b_share)
             };
 
             // Generate and execute hooks for additional functionalities before instantiation.
