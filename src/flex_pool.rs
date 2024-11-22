@@ -136,23 +136,24 @@ mod flex_pool {
 
             // Ensure both token addresses point to fungible tokens.
             assert!(
-                ResourceManager::from_address(x_address)
+                ResourceManager::from_address(a_address)
                     .resource_type()
                     .is_fungible(),
                 "[Instantiate]: Address A should be a fungible token."
             );
             assert!(
-                ResourceManager::from_address(y_address)
+                ResourceManager::from_address(b_address)
                     .resource_type()
                     .is_fungible(),
                 "[Instantiate]: Address B should be a fungible token."
             );
 
             // Calculate ratio
+            let b_share = 1 - a_share;
             let (ratio, x_share) = if x_address == a_address {
-                (a_share / (dec!(1) - a_share), a_share) // the larger the larger share of X in the pool
+                (a_share / b_share, a_share)
             } else {
-                ((dec!(1) - a_share) / a_share, 1 - a_share)
+                (b_share / a_share, b_share)
             };
 
             // Generate and execute hooks for additional functionalities before instantiation.
@@ -163,9 +164,9 @@ mod flex_pool {
                 (BeforeInstantiateState {
                     x_address,
                     y_address,
-                    price_sqrt: None,
                     input_fee_rate,
                     flash_loan_fee_rate,
+                    x_share,
                 },),
             );
 
@@ -283,9 +284,9 @@ mod flex_pool {
                 pool_address,
                 x_address,
                 y_address,
-                price_sqrt: None,
                 input_fee_rate,
                 flash_loan_fee_rate,
+                x_share,
             });
 
             Runtime::emit_event(InstantiateEvent {
@@ -415,19 +416,17 @@ mod flex_pool {
 
             // Determine the type of swap and retrieve the current vault amounts.
             let swap_type = self.swap_type(input_bucket.resource_address());
+
+            // Retrieve the current vault amounts and ensure they are valid.
             let (x_vault, y_vault) = self.vault_amounts();
-            let active_liquidity = PreciseDecimal::from(
-                self.lp_manager
-                    .total_supply()
-                    .expect("LP token has no total supply, but it should always have one"),
-            );
+            assert!(x_vault > Decimal::ZERO, "X token reserves are empty!");
+            assert!(y_vault > Decimal::ZERO, "Y token reserves are empty!");
 
             // Initialize the state for BeforeSwap hooks.
             let mut before_swap_state: BeforeSwapState = BeforeSwapState {
                 pool_address: self.pool_address,
                 swap_type,
                 price_sqrt: price_sqrt(x_vault, y_vault, self.ratio).expect("Invalid price"),
-                active_liquidity,
                 input_fee_rate: self.input_fee_rate,
                 fee_protocol_share: self.fee_protocol_share,
             };
@@ -445,36 +444,22 @@ mod flex_pool {
             );
             self.set_input_fee_rate(before_swap_state.input_fee_rate);
 
-            // Retrieve the current vault amounts and ensure they are valid.
-            let input_amount = input_bucket.amount();
-            let mut vault_amounts = self.liquidity_pool.get_vault_amounts();
-            let input_vault_amount = vault_amounts
-                .swap_remove(&input_address)
-                .expect("No input resource!");
-            assert!(
-                input_vault_amount > Decimal::ZERO,
-                "Input reserves are empty!"
-            );
-            let (&output_address, &output_vault_amount) =
-                vault_amounts.first().expect("No output resource");
-            assert!(
-                output_vault_amount > Decimal::ZERO,
-                "Output reserves are empty!"
-            );
-
             // Calculate the net input amount and fees.
-            let input_divisibility = self.input_divisibility(swap_type);
             let (input_amount_net, input_fee_lp, input_fee_protocol) = input_amount_net(
-                input_amount,
+                input_bucket.amount(),
                 self.input_fee_rate,
                 self.fee_protocol_share,
-                input_divisibility,
+                self.input_divisibility(swap_type),
             );
 
             // Deposit protocol fees.
             self.deposit_protocol_fees(input_bucket.take(input_fee_protocol));
 
             // Calculate the output amount based on the swap.
+            let (input_vault_amount, output_address, output_vault_amount) = match swap_type {
+                SwapType::BuyX => (y_vault, self.x_address, x_vault),
+                SwapType::SellX => (x_vault, self.y_address, y_vault),
+            };
             let output_divisibility = self.output_divisibility(swap_type);
             let output_amount = output_amount(
                 input_vault_amount,
@@ -490,12 +475,10 @@ mod flex_pool {
             self.deposit(input_bucket);
 
             // Initialize the state for AfterSwap hooks.
-            let (x_vault, y_vault) = self.vault_amounts();
             let mut after_swap_state: AfterSwapState = AfterSwapState {
                 pool_address: self.pool_address,
                 swap_type,
-                price_sqrt: price_sqrt(x_vault, y_vault, self.ratio).expect("Invalid price"),
-                active_liquidity,
+                price_sqrt: self.price_sqrt().expect("Invalid price"),
                 input_fee_rate: self.input_fee_rate,
                 fee_protocol_share: self.fee_protocol_share,
                 input_address,
@@ -977,13 +960,11 @@ mod flex_pool {
         /// Returns the modified hook arguments after all relevant hooks have been executed,
         /// which may carry state changes enacted by the hooks.
         fn execute_hooks<T: ScryptoSbor>(&self, hook_call: HookCall, hook_args: T) -> T {
-            let empty = ("".into(), vec![]);
             let hooks = match hook_call {
                 HookCall::BeforeInstantiate => &self.hook_calls.before_instantiate,
                 HookCall::AfterInstantiate => &self.hook_calls.after_instantiate,
                 HookCall::BeforeSwap => &self.hook_calls.before_swap,
                 HookCall::AfterSwap => &self.hook_calls.after_swap,
-                _ => &empty,
             };
             execute_hooks(&hooks, &self.hook_badges, hook_args)
         }

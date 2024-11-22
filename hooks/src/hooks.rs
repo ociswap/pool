@@ -4,70 +4,21 @@ use common::pools::SwapType;
 
 #[derive(ScryptoSbor, Clone, Debug)]
 pub struct BeforeInstantiateState {
-    pub price_sqrt: Option<PreciseDecimal>,
     pub x_address: ResourceAddress,
     pub y_address: ResourceAddress,
     pub input_fee_rate: Decimal,
     pub flash_loan_fee_rate: Decimal,
+    pub x_share: Decimal,
 }
 
 #[derive(ScryptoSbor, ManifestSbor, Clone, Debug, PartialEq)]
 pub struct AfterInstantiateState {
     pub pool_address: ComponentAddress,
-    pub price_sqrt: Option<PreciseDecimal>,
     pub x_address: ResourceAddress,
     pub y_address: ResourceAddress,
     pub input_fee_rate: Decimal,
     pub flash_loan_fee_rate: Decimal,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct LiquidityPositionType {
-    pub left_bound: i32,
-    pub right_bound: i32,
-    pub position_id: Option<NonFungibleLocalId>,
-    pub shape_id: Option<NonFungibleLocalId>,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct BeforeAddLiquidityState {
-    pub pool_address: ComponentAddress,
-    pub x_provided: Decimal,
-    pub y_provided: Decimal,
-    pub active_liquidity: PreciseDecimal,
-    pub price_sqrt: PreciseDecimal,
-    pub position: LiquidityPositionType,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct AfterAddLiquidityState {
-    pub pool_address: ComponentAddress,
-    pub x_added: Decimal,
-    pub y_added: Decimal,
-    pub added_liquidity: PreciseDecimal,
-    pub active_liquidity: PreciseDecimal,
-    pub price_sqrt: PreciseDecimal,
-    pub position: LiquidityPositionType,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct BeforeRemoveLiquidityState {
-    pub pool_address: ComponentAddress,
-    pub provided_liquidity: PreciseDecimal,
-    pub active_liquidity: PreciseDecimal,
-    pub price_sqrt: PreciseDecimal,
-    pub position: LiquidityPositionType,
-}
-
-#[derive(ScryptoSbor, Clone, Debug)]
-pub struct AfterRemoveLiquidityState {
-    pub pool_address: ComponentAddress,
-    pub x_removed: Decimal,
-    pub y_removed: Decimal,
-    pub removed_liquidity: PreciseDecimal,
-    pub active_liquidity: PreciseDecimal,
-    pub price_sqrt: PreciseDecimal,
-    pub position: LiquidityPositionType,
+    pub x_share: Decimal,
 }
 
 #[derive(ScryptoSbor, ManifestSbor, Clone, Debug, PartialEq)]
@@ -75,7 +26,6 @@ pub struct BeforeSwapState {
     pub pool_address: ComponentAddress,
     pub swap_type: SwapType,
     pub price_sqrt: PreciseDecimal,
-    pub active_liquidity: PreciseDecimal,
     pub input_fee_rate: Decimal,
     pub fee_protocol_share: Decimal,
 }
@@ -85,7 +35,6 @@ pub struct AfterSwapState {
     pub pool_address: ComponentAddress,
     pub swap_type: SwapType,
     pub price_sqrt: PreciseDecimal,
-    pub active_liquidity: PreciseDecimal,
     pub input_fee_rate: Decimal,
     pub fee_protocol_share: Decimal,
     pub input_address: ResourceAddress,
@@ -102,22 +51,14 @@ pub enum HookCall {
     AfterInstantiate,
     BeforeSwap,
     AfterSwap,
-    BeforeAddLiquidity,
-    AfterAddLiquidity,
-    BeforeRemoveLiquidity,
-    AfterRemoveLiquidity,
 }
 
 #[derive(ScryptoSbor, Clone, Debug)]
 pub struct HookCalls {
     pub before_instantiate: (String, Vec<Global<AnyComponent>>),
     pub after_instantiate: (String, Vec<Global<AnyComponent>>),
-    pub before_add_liquidity: (String, Vec<Global<AnyComponent>>),
-    pub after_add_liquidity: (String, Vec<Global<AnyComponent>>),
     pub before_swap: (String, Vec<Global<AnyComponent>>),
     pub after_swap: (String, Vec<Global<AnyComponent>>),
-    pub before_remove_liquidity: (String, Vec<Global<AnyComponent>>),
-    pub after_remove_liquidity: (String, Vec<Global<AnyComponent>>),
 }
 
 impl HookCalls {
@@ -125,12 +66,8 @@ impl HookCalls {
         HookCalls {
             before_instantiate: ("before_instantiate".into(), Vec::new()),
             after_instantiate: ("after_instantiate".into(), Vec::new()),
-            before_add_liquidity: ("before_add_liquidity".into(), Vec::new()),
-            after_add_liquidity: ("after_add_liquidity".into(), Vec::new()),
             before_swap: ("before_swap".into(), Vec::new()),
             after_swap: ("after_swap".into(), Vec::new()),
-            before_remove_liquidity: ("before_remove_liquidity".into(), Vec::new()),
-            after_remove_liquidity: ("after_remove_liquidity".into(), Vec::new()),
         }
     }
 }
@@ -190,10 +127,6 @@ fn generate_hooks_badges(
                 HookCall::AfterInstantiate => hook_calls.after_instantiate.1.push(hook),
                 HookCall::BeforeSwap => hook_calls.before_swap.1.push(hook),
                 HookCall::AfterSwap => hook_calls.after_swap.1.push(hook),
-                HookCall::BeforeAddLiquidity => hook_calls.before_add_liquidity.1.push(hook),
-                HookCall::AfterAddLiquidity => hook_calls.after_add_liquidity.1.push(hook),
-                HookCall::BeforeRemoveLiquidity => hook_calls.before_remove_liquidity.1.push(hook),
-                HookCall::AfterRemoveLiquidity => hook_calls.after_remove_liquidity.1.push(hook),
             }
         }
 
