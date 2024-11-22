@@ -464,14 +464,13 @@ mod flex_pool {
                 SwapType::BuyX => (y_vault, self.x_address, x_vault),
                 SwapType::SellX => (x_vault, self.y_address, y_vault),
             };
-            let output_divisibility = self.output_divisibility(swap_type);
             let output_amount = output_amount(
                 input_vault_amount,
                 output_vault_amount,
                 input_amount_net,
                 self.ratio,
                 swap_type,
-                output_divisibility,
+                self.output_divisibility(swap_type),
             );
 
             // Withdraw the output amount and deposit the input bucket.
