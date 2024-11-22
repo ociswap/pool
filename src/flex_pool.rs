@@ -423,27 +423,30 @@ mod flex_pool {
             assert!(x_vault > Decimal::ZERO, "X token reserves are empty!");
             assert!(y_vault > Decimal::ZERO, "Y token reserves are empty!");
 
-            // Initialize the state for BeforeSwap hooks.
-            let mut before_swap_state: BeforeSwapState = BeforeSwapState {
-                pool_address: self.pool_address,
-                swap_type,
-                price_sqrt: price_sqrt(x_vault, y_vault, self.ratio).expect("Invalid price"),
-                input_fee_rate: self.input_fee_rate,
-                fee_protocol_share: self.fee_protocol_share,
-            };
-
-            // Execute BeforeSwap hooks, validate the output, and adjust the fee rate.
             let (input_address, input_gross_amount) =
                 (input_bucket.resource_address(), input_bucket.amount());
-            (before_swap_state, input_bucket) =
-                self.execute_hooks(HookCall::BeforeSwap, (before_swap_state, input_bucket));
-            assert_hooks_bucket_output_and_address(
-                input_gross_amount,
-                input_address,
-                &input_bucket,
-                "BeforeSwap",
-            );
-            self.set_input_fee_rate(before_swap_state.input_fee_rate);
+
+            if !self.hook_calls.before_swap.1.is_empty() {
+                // Initialize the state for BeforeSwap hooks.
+                let mut before_swap_state: BeforeSwapState = BeforeSwapState {
+                    pool_address: self.pool_address,
+                    swap_type,
+                    price_sqrt: price_sqrt(x_vault, y_vault, self.ratio).expect("Invalid price"),
+                    input_fee_rate: self.input_fee_rate,
+                    fee_protocol_share: self.fee_protocol_share,
+                };
+
+                // Execute BeforeSwap hooks, validate the output, and adjust the fee rate.
+                (before_swap_state, input_bucket) =
+                    self.execute_hooks(HookCall::BeforeSwap, (before_swap_state, input_bucket));
+                assert_hooks_bucket_output_and_address(
+                    input_gross_amount,
+                    input_address,
+                    &input_bucket,
+                    "BeforeSwap",
+                );
+                self.set_input_fee_rate(before_swap_state.input_fee_rate);
+            };
 
             // Calculate the net input amount and fees.
             let (input_amount_net, input_fee_lp, input_fee_protocol) = input_amount_net(
@@ -475,34 +478,38 @@ mod flex_pool {
             let mut output_bucket = self.withdraw(output_address, output_amount);
             self.deposit(input_bucket);
 
-            // Initialize the state for AfterSwap hooks.
-            let mut after_swap_state: AfterSwapState = AfterSwapState {
-                pool_address: self.pool_address,
-                swap_type,
-                price_sqrt: self.price_sqrt().expect("Invalid price"),
-                input_fee_rate: self.input_fee_rate,
-                fee_protocol_share: self.fee_protocol_share,
-                input_address,
-                input_amount: input_amount_net,
-                output_address,
-                output_amount: output_bucket.amount(),
-                input_fee_lp,
-                input_fee_protocol,
+            let price_sqrt_after_swap = self.price_sqrt().expect("Invalid price");
+
+            if !self.hook_calls.after_swap.1.is_empty() {
+                // Initialize the state for AfterSwap hooks.
+                let mut after_swap_state: AfterSwapState = AfterSwapState {
+                    pool_address: self.pool_address,
+                    swap_type,
+                    price_sqrt: price_sqrt_after_swap,
+                    input_fee_rate: self.input_fee_rate,
+                    fee_protocol_share: self.fee_protocol_share,
+                    input_address,
+                    input_amount: input_amount_net,
+                    output_address,
+                    output_amount: output_bucket.amount(),
+                    input_fee_lp,
+                    input_fee_protocol,
+                };
+
+                // Execute AfterSwap hooks, validate the output, and adjust the fee rate.
+                (after_swap_state, output_bucket) =
+                    self.execute_hooks(HookCall::AfterSwap, (after_swap_state, output_bucket));
+                assert_hooks_bucket_output_and_address(
+                    output_amount,
+                    output_address,
+                    &output_bucket,
+                    "AfterSwap",
+                );
+                self.set_input_fee_rate(after_swap_state.input_fee_rate);
             };
 
-            // Execute AfterSwap hooks, validate the output, and adjust the fee rate.
-            (after_swap_state, output_bucket) =
-                self.execute_hooks(HookCall::AfterSwap, (after_swap_state, output_bucket));
-            assert_hooks_bucket_output_and_address(
-                output_amount,
-                output_address,
-                &output_bucket,
-                "AfterSwap",
-            );
-            self.set_input_fee_rate(after_swap_state.input_fee_rate);
-
             // Update the oracle with the new price square root.
-            self.oracle.observe(after_swap_state.price_sqrt);
+            self.oracle.observe(price_sqrt_after_swap);
 
             // Emit a SwapEvent to log the swap details.
             Runtime::emit_event(SwapEvent {
@@ -514,7 +521,7 @@ mod flex_pool {
                 output_return_amount: output_bucket.amount(),
                 input_fee_lp,
                 input_fee_protocol,
-                price_sqrt: after_swap_state.price_sqrt,
+                price_sqrt: price_sqrt_after_swap,
             });
 
             output_bucket
