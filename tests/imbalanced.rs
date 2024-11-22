@@ -6,7 +6,7 @@ use scrypto_testenv::MAX_SUPPLY;
 #[test]
 fn test_swap_sell_x() {
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), false);
     helper.add_liquidity_success(
         dec!(100000),
         dec!(5000),
@@ -16,7 +16,7 @@ fn test_swap_sell_x() {
     );
     helper.swap_success(helper.x_address(), dec!(10), dec!("0.499950004999500049"));
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
         dec!(5000),
@@ -26,7 +26,7 @@ fn test_swap_sell_x() {
     );
     helper.swap_success(helper.x_address(), dec!(10), dec!("0.49996875156192"));
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
         dec!(20000),
@@ -40,7 +40,7 @@ fn test_swap_sell_x() {
 #[test]
 fn test_swap_buy_x() {
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), false);
     helper.add_liquidity_success(
         dec!(100000),
         dec!(5000),
@@ -50,7 +50,7 @@ fn test_swap_buy_x() {
     );
     helper.swap_success(helper.y_address(), dec!(10), dec!("199.600798403193612774"));
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
         dec!(5000),
@@ -60,7 +60,7 @@ fn test_swap_buy_x() {
     );
     helper.swap_success(helper.y_address(), dec!(10), dec!("199.7503743916192"));
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
         dec!(20000),
@@ -74,7 +74,7 @@ fn test_swap_buy_x() {
 #[test]
 fn test_price_sqrt() {
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), false);
     helper.add_liquidity_success(
         dec!(100000),
         dec!(5000),
@@ -84,7 +84,7 @@ fn test_price_sqrt() {
     );
     helper.price_sqrt_success(Some(pdec!("0.223606797749978969640917366873127623")));
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
         dec!(5000),
@@ -94,7 +94,7 @@ fn test_price_sqrt() {
     );
     helper.price_sqrt_success(Some(pdec!("0.223606797749978969640917366873127622")));
     let mut helper = FlexPoolTestHelper::new();
-    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), true);
+    helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
         dec!(20000),
