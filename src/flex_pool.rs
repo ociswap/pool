@@ -136,13 +136,13 @@ mod flex_pool {
 
             // Ensure both token addresses point to fungible tokens.
             assert!(
-                ResourceManager::from_address(x_address)
+                ResourceManager::from_address(a_address)
                     .resource_type()
                     .is_fungible(),
                 "[Instantiate]: Address A should be a fungible token."
             );
             assert!(
-                ResourceManager::from_address(y_address)
+                ResourceManager::from_address(b_address)
                     .resource_type()
                     .is_fungible(),
                 "[Instantiate]: Address B should be a fungible token."
