@@ -163,9 +163,9 @@ mod flex_pool {
                 (BeforeInstantiateState {
                     x_address,
                     y_address,
-                    price_sqrt: None,
                     input_fee_rate,
                     flash_loan_fee_rate,
+                    x_share,
                 },),
             );
 
@@ -283,9 +283,9 @@ mod flex_pool {
                 pool_address,
                 x_address,
                 y_address,
-                price_sqrt: None,
                 input_fee_rate,
                 flash_loan_fee_rate,
+                x_share,
             });
 
             Runtime::emit_event(InstantiateEvent {
@@ -427,7 +427,6 @@ mod flex_pool {
                 pool_address: self.pool_address,
                 swap_type,
                 price_sqrt: price_sqrt(x_vault, y_vault, self.ratio).expect("Invalid price"),
-                active_liquidity,
                 input_fee_rate: self.input_fee_rate,
                 fee_protocol_share: self.fee_protocol_share,
             };
@@ -490,12 +489,10 @@ mod flex_pool {
             self.deposit(input_bucket);
 
             // Initialize the state for AfterSwap hooks.
-            let (x_vault, y_vault) = self.vault_amounts();
             let mut after_swap_state: AfterSwapState = AfterSwapState {
                 pool_address: self.pool_address,
                 swap_type,
-                price_sqrt: price_sqrt(x_vault, y_vault, self.ratio).expect("Invalid price"),
-                active_liquidity,
+                price_sqrt: self.price_sqrt().expect("Invalid price"),
                 input_fee_rate: self.input_fee_rate,
                 fee_protocol_share: self.fee_protocol_share,
                 input_address,
@@ -977,13 +974,11 @@ mod flex_pool {
         /// Returns the modified hook arguments after all relevant hooks have been executed,
         /// which may carry state changes enacted by the hooks.
         fn execute_hooks<T: ScryptoSbor>(&self, hook_call: HookCall, hook_args: T) -> T {
-            let empty = ("".into(), vec![]);
             let hooks = match hook_call {
                 HookCall::BeforeInstantiate => &self.hook_calls.before_instantiate,
                 HookCall::AfterInstantiate => &self.hook_calls.after_instantiate,
                 HookCall::BeforeSwap => &self.hook_calls.before_swap,
                 HookCall::AfterSwap => &self.hook_calls.after_swap,
-                _ => &empty,
             };
             execute_hooks(&hooks, &self.hook_badges, hook_args)
         }
