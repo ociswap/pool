@@ -416,12 +416,11 @@ mod flex_pool {
 
             // Determine the type of swap and retrieve the current vault amounts.
             let swap_type = self.swap_type(input_bucket.resource_address());
+
+            // Retrieve the current vault amounts and ensure they are valid.
             let (x_vault, y_vault) = self.vault_amounts();
-            let active_liquidity = PreciseDecimal::from(
-                self.lp_manager
-                    .total_supply()
-                    .expect("LP token has no total supply, but it should always have one"),
-            );
+            assert!(x_vault > Decimal::ZERO, "X token reserves are empty!");
+            assert!(y_vault > Decimal::ZERO, "Y token reserves are empty!");
 
             // Initialize the state for BeforeSwap hooks.
             let mut before_swap_state: BeforeSwapState = BeforeSwapState {
@@ -445,36 +444,22 @@ mod flex_pool {
             );
             self.set_input_fee_rate(before_swap_state.input_fee_rate);
 
-            // Retrieve the current vault amounts and ensure they are valid.
-            let input_amount = input_bucket.amount();
-            let mut vault_amounts = self.liquidity_pool.get_vault_amounts();
-            let input_vault_amount = vault_amounts
-                .swap_remove(&input_address)
-                .expect("No input resource!");
-            assert!(
-                input_vault_amount > Decimal::ZERO,
-                "Input reserves are empty!"
-            );
-            let (&output_address, &output_vault_amount) =
-                vault_amounts.first().expect("No output resource");
-            assert!(
-                output_vault_amount > Decimal::ZERO,
-                "Output reserves are empty!"
-            );
-
             // Calculate the net input amount and fees.
-            let input_divisibility = self.input_divisibility(swap_type);
             let (input_amount_net, input_fee_lp, input_fee_protocol) = input_amount_net(
-                input_amount,
+                input_bucket.amount(),
                 self.input_fee_rate,
                 self.fee_protocol_share,
-                input_divisibility,
+                self.input_divisibility(swap_type),
             );
 
             // Deposit protocol fees.
             self.deposit_protocol_fees(input_bucket.take(input_fee_protocol));
 
             // Calculate the output amount based on the swap.
+            let (input_vault_amount, output_address, output_vault_amount) = match swap_type {
+                SwapType::BuyX => (y_vault, self.x_address, x_vault),
+                SwapType::SellX => (x_vault, self.y_address, y_vault),
+            };
             let output_divisibility = self.output_divisibility(swap_type);
             let output_amount = output_amount(
                 input_vault_amount,
