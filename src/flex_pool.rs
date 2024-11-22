@@ -520,261 +520,6 @@ mod flex_pool {
             output_bucket
         }
 
-        /// Retrieve the resource address of token X in the pool.
-        ///
-        /// # Returns
-        /// * The resource address of token X.
-        pub fn x_address(&self) -> ResourceAddress {
-            self.x_address
-        }
-
-        /// Retrieve the resource address of token Y in the pool.
-        ///
-        /// # Returns
-        /// * The resource address of token Y.
-        pub fn y_address(&self) -> ResourceAddress {
-            self.y_address
-        }
-
-        /// Retrieve the divisibility of the X token in this pool
-        ///
-        /// # Returns
-        /// * The divisibility of the X token
-        pub fn x_divisibility(&self) -> u8 {
-            self.x_divisibility
-        }
-
-        /// Retrieve the divisibility of the Y token in this pool
-        ///
-        /// # Returns
-        /// * The divisibility of the Y token
-        pub fn y_divisibility(&self) -> u8 {
-            self.y_divisibility
-        }
-
-        /// Retrieves the divisibility of the input token based on the swap type.
-        ///
-        /// # Arguments
-        /// * `swap_type` - The type of the swap (BuyX or SellX).
-        ///
-        /// # Returns
-        /// * `u8` - The divisibility of the input token.
-        fn input_divisibility(&self, swap_type: SwapType) -> u8 {
-            match swap_type {
-                SwapType::BuyX => self.y_divisibility(),
-                SwapType::SellX => self.x_divisibility(),
-            }
-        }
-
-        /// Retrieves the divisibility of the output token based on the swap type.
-        ///
-        /// # Arguments
-        /// * `swap_type` - The type of the swap (BuyX or SellX).
-        ///
-        /// # Returns
-        /// * `u8` - The divisibility of the output token.
-        fn output_divisibility(&self, swap_type: SwapType) -> u8 {
-            match swap_type {
-                SwapType::BuyX => self.x_divisibility(),
-                SwapType::SellX => self.y_divisibility(),
-            }
-        }
-
-        /// Retrieve the amounts of tokens X and Y in the pool.
-        ///
-        /// # Returns
-        /// * A tuple with shape (Decimal, Decimal) containing the amounts of token X and token Y.
-        fn vault_amounts(&self) -> (Decimal, Decimal) {
-            let reserves = self.liquidity_pool.get_vault_amounts();
-
-            let x_amount = *reserves
-                .get(&self.x_address)
-                .expect("Resource does not belong to the pool!");
-            let y_amount = *reserves
-                .get(&self.y_address)
-                .expect("Resource does not belong to the pool!");
-            (x_amount, y_amount)
-        }
-
-        /// Retrieve the amounts of tokens X and Y in the pool.
-        ///
-        /// # Returns
-        /// * `IndexMap<ResourceAddress, Decimal>` - A map containing the resource addresses and their corresponding amounts.
-        pub fn total_liquidity(&self) -> IndexMap<ResourceAddress, Decimal> {
-            self.liquidity_pool.get_vault_amounts()
-        }
-
-        /// Calculate the square root of the price ratio between token X and token Y.
-        ///
-        /// # Returns
-        /// * An `Option<PreciseDecimal>` representing the square root of the price ratio.
-        pub fn price_sqrt(&self) -> Option<PreciseDecimal> {
-            let (x_vault, y_vault) = self.vault_amounts();
-            price_sqrt(x_vault, y_vault, self.ratio)
-        }
-
-        /// Retrieve the resource address of the LP token used in this pool
-        ///
-        /// # Returns
-        /// * The resource address of the LP token NFTs used in this pool
-        pub fn lp_address(&self) -> ResourceAddress {
-            self.lp_manager.address()
-        }
-
-        /// Retrieves the total supply of LP tokens in this pool.
-        ///
-        /// # Returns
-        /// * `Decimal` - The total amount of LP tokens currently issued by this pool.
-        ///
-        /// Note: LP tokens always have supply tracking enabled, so this will never fail.
-        pub fn lp_total_supply(&self) -> Decimal {
-            self.lp_manager.total_supply().unwrap()
-        }
-
-        /// Retrieve the share of token X in the pool's total value.
-        ///
-        /// # Returns
-        /// * A `Decimal` representing the share of token X in the pool's total value.
-        pub fn x_share(&self) -> Decimal {
-            self.x_share
-        }
-
-        /// Retrieve the share of token Y in the pool's total value.
-        ///
-        /// # Returns
-        /// * A `Decimal` representing the share of token Y in the pool's total value.
-        pub fn y_share(&self) -> Decimal {
-            Decimal::ONE - self.x_share
-        }
-
-        /// Retrieves the current input fee rate of the pool
-        ///
-        /// # Returns
-        /// * The current input fee rate of the pool
-        pub fn input_fee_rate(&self) -> Decimal {
-            self.input_fee_rate
-        }
-
-        /// Retrieve the protocol's share of the fees in the pool.
-        ///
-        /// # Returns
-        /// * The protocol's share of the fees as a `Decimal`.
-        pub fn fee_protocol_share(&self) -> Decimal {
-            self.fee_protocol_share
-        }
-
-        /// Retrieve the flash loan fee rate of the pool.
-        ///
-        /// # Returns
-        /// * The flash loan fee rate as a `Decimal`.
-        pub fn flash_loan_fee_rate(&self) -> Decimal {
-            self.flash_loan_fee_rate
-        }
-
-        /// Retrieve the global liquidity pool associated with this pool.
-        ///
-        /// # Returns
-        /// * A `Global<TwoResourcePool>` representing the liquidity pool.
-        pub fn liquidity_pool(&self) -> Global<TwoResourcePool> {
-            self.liquidity_pool
-        }
-
-        /// Retrieves the global registry component associated with this pool.
-        /// This registry is crucial as it configures and collects protocol fees,
-        /// which are essential for the decentralized management and operational sustainability of the pool.
-        ///
-        /// # Returns
-        /// * `Global<AnyComponent>` - A global reference to the registry component used by this pool.
-        pub fn registry(&self) -> Global<AnyComponent> {
-            self.registry
-        }
-
-        /// Generates names and descriptions for the pool and LP tokens.
-        ///
-        /// This function constructs the names and descriptions for the pool and its associated LP tokens
-        /// based on the symbols of the provided resource addresses.
-        ///
-        /// # Arguments
-        /// * `x_address` - The resource address of the first asset in the pool.
-        /// * `y_address` - The resource address of the second asset in the pool.
-        ///
-        /// # Returns
-        /// A tuple containing:
-        /// - `pool_name`: The name of the pool.
-        /// - `lp_name`: The name of the LP token.
-        /// - `lp_description`: The description of the LP token.
-        fn names_and_lp_description(
-            x_address: ResourceAddress,
-            y_address: ResourceAddress,
-        ) -> (String, String, String) {
-            let x_symbol = token_symbol(x_address);
-            let y_symbol = token_symbol(y_address);
-            let (pool_name, lp_name, lp_description) =
-                match x_symbol.zip(y_symbol).map(|(x, y)| format!("{}/{}", x, y)) {
-                    Some(pair_symbol) => (
-                        format!("Ociswap Flex Pool {}", pair_symbol).to_owned(),
-                        format!("Ociswap LP {}", pair_symbol).to_owned(),
-                        format!("Ociswap LP token for Flex Pool {}", pair_symbol).to_owned(),
-                    ),
-                    None => (
-                        "Ociswap Flex Pool".to_owned(),
-                        "Ociswap LP".to_owned(),
-                        "Ociswap LP token for Flex Pool".to_owned(),
-                    ),
-                };
-            (pool_name, lp_name, lp_description)
-        }
-
-        /// Sets the metadata for the LP tokens from the liquidity pool to be displayed in the Wallet.
-        /// This method can only be called by the Blueprint.
-        ///
-        /// # Arguments
-        /// * `pool_address`: The address of the pool.
-        /// * `lp_address`: The address of the LP tokens.
-        /// * `dapp_definition`: The dapp definition of the project.
-        pub fn set_liquidity_pool_meta(
-            &self,
-            pool_address: ComponentAddress,
-            lp_address: ResourceAddress,
-            name: String,
-            description: String,
-            dapp_definition: ComponentAddress,
-        ) {
-            let lp_manager = ResourceManager::from_address(lp_address);
-            lp_manager.set_metadata("name", name);
-            lp_manager.set_metadata("description", description);
-
-            let tags = vec![
-                "ociswap".to_owned(),
-                "liquidity-pool".to_owned(),
-                "lp".to_owned(),
-                "dex".to_owned(),
-                "defi".to_owned(),
-            ];
-            lp_manager.set_metadata("tags", tags.to_owned());
-            lp_manager.set_metadata(
-                "icon_url",
-                Url::of("https://ociswap.com/icons/lp_token.png".to_owned()),
-            );
-            lp_manager.set_metadata(
-                "info_url",
-                Url::of(
-                    format!(
-                        "https://ociswap.com/pools/{}",
-                        Runtime::bech32_encode_address(pool_address)
-                    )
-                    .to_owned(),
-                ),
-            );
-
-            let dapp_definition_global: GlobalAddress = dapp_definition.into();
-            lp_manager.set_metadata("dapp_definition", dapp_definition_global);
-            lp_manager.lock_updatable_metadata();
-
-            self.liquidity_pool
-                .set_metadata("dapp_definition", dapp_definition_global);
-        }
-
         /// Initiates a flash loan for one of the tokens (X or Y).
         /// The loan must be repaid within the same transaction for it to be successful.
         ///
@@ -865,24 +610,6 @@ mod flex_pool {
             loan_repayment
         }
 
-        /// Retrieves the resource address of the transient token used within flash loans.
-        ///
-        /// # Returns
-        /// * `ResourceAddress` - The address of the transient token used in flash loans.
-        pub fn flash_loan_address(&self) -> ResourceAddress {
-            self.flash_manager.address()
-        }
-
-        /// Returns the next scheduled synchronization time with the registry.
-        ///
-        /// This method provides the timestamp (in seconds since the Unix epoch) when the pool is next set to synchronize its state with the registry.
-        ///
-        /// # Returns
-        /// * `u64` - The Unix timestamp indicating when the next synchronization with the registry is scheduled.
-        pub fn next_sync_time(&self) -> u64 {
-            self.next_sync_time
-        }
-
         /// Synchronizes the pool's state with the registry to potentially update the protocol fees.
         ///
         /// This method is crucial for maintaining the pool's alignment with the broader protocol's fee structure,
@@ -913,30 +640,54 @@ mod flex_pool {
             self.next_sync_time = next_sync_time;
         }
 
-        /// Sets the input fee rate for the pool.
-        ///
-        /// Updates the pool's `input_fee_rate` after validating it, ensuring correct fee calculations for transactions.
+        /// Sets the metadata for the LP tokens from the liquidity pool to be displayed in the Wallet.
+        /// This method can only be called by the Blueprint.
         ///
         /// # Arguments
-        /// * `input_fee_rate` - A `Decimal` representing the new fee rate to be applied.
-        ///                      The valid range for this rate is between zero and one, where a value of `0.003` equates to a fee rate of 3%.
-        ///
-        /// # Panics
-        /// Panics if the `input_fee_rate` is not valid as determined by `assert_input_fee_rate_is_valid`.
-        fn set_input_fee_rate(&mut self, input_fee_rate: Decimal) {
-            assert_input_fee_rate_is_valid(input_fee_rate);
-            self.input_fee_rate = input_fee_rate;
-        }
+        /// * `pool_address`: The address of the pool.
+        /// * `lp_address`: The address of the LP tokens.
+        /// * `dapp_definition`: The dapp definition of the project.
+        pub fn set_liquidity_pool_meta(
+            &self,
+            pool_address: ComponentAddress,
+            lp_address: ResourceAddress,
+            name: String,
+            description: String,
+            dapp_definition: ComponentAddress,
+        ) {
+            let lp_manager = ResourceManager::from_address(lp_address);
+            lp_manager.set_metadata("name", name);
+            lp_manager.set_metadata("description", description);
 
-        /// Sets the protocol fee share for the pool.
-        ///
-        /// This method updates the `fee_protocol_share` state of the pool. It ensures that the value is within the allowed range [0, `FEE_PROTOCOL_SHARE_MAX`].
-        /// The clamping is crucial to prevent setting a fee share that exceeds the maximum allowed limit, which could lead to incorrect fee calculations.
-        ///
-        /// # Arguments
-        /// * `fee_protocol_share` - A `Decimal` representing the new protocol fee share to be set.
-        fn set_fee_protocol_share(&mut self, fee_protocol_share: Decimal) {
-            self.fee_protocol_share = fee_protocol_share.clamp(dec!(0), FEE_PROTOCOL_SHARE_MAX);
+            let tags = vec![
+                "ociswap".to_owned(),
+                "liquidity-pool".to_owned(),
+                "lp".to_owned(),
+                "dex".to_owned(),
+                "defi".to_owned(),
+            ];
+            lp_manager.set_metadata("tags", tags.to_owned());
+            lp_manager.set_metadata(
+                "icon_url",
+                Url::of("https://ociswap.com/icons/lp_token.png".to_owned()),
+            );
+            lp_manager.set_metadata(
+                "info_url",
+                Url::of(
+                    format!(
+                        "https://ociswap.com/pools/{}",
+                        Runtime::bech32_encode_address(pool_address)
+                    )
+                    .to_owned(),
+                ),
+            );
+
+            let dapp_definition_global: GlobalAddress = dapp_definition.into();
+            lp_manager.set_metadata("dapp_definition", dapp_definition_global);
+            lp_manager.lock_updatable_metadata();
+
+            self.liquidity_pool
+                .set_metadata("dapp_definition", dapp_definition_global);
         }
 
         /// Executes post-instantiation hooks to extend pool functionality.
@@ -945,29 +696,6 @@ mod flex_pool {
         /// * `after_instantiate_state`: The state information specific to this pool that will be passed to the hooks for processing.
         pub fn execute_after_instantiate(&self, after_instantiate_state: AfterInstantiateState) {
             self.execute_hooks(HookCall::AfterInstantiate, (after_instantiate_state,));
-        }
-
-        /// Executes predefined hooks based on the lifecycle event of the pool.
-        ///
-        /// This method applies custom logic at different stages of the pool's lifecycle,
-        /// like before or after swaps, and during liquidity changes or initialization.
-        /// It uses hooks to implement modular, event-driven logic that can be customized and linked to these events.
-        ///
-        /// # Arguments
-        /// * `hook_call` - An enum representing the specific lifecycle event.
-        /// * `hook_args` - The arguments to pass to the hook functions, allowing for context-specific actions.
-        ///
-        /// # Returns
-        /// Returns the modified hook arguments after all relevant hooks have been executed,
-        /// which may carry state changes enacted by the hooks.
-        fn execute_hooks<T: ScryptoSbor>(&self, hook_call: HookCall, hook_args: T) -> T {
-            let hooks = match hook_call {
-                HookCall::BeforeInstantiate => &self.hook_calls.before_instantiate,
-                HookCall::AfterInstantiate => &self.hook_calls.after_instantiate,
-                HookCall::BeforeSwap => &self.hook_calls.before_swap,
-                HookCall::AfterSwap => &self.hook_calls.after_swap,
-            };
-            execute_hooks(&hooks, &self.hook_badges, hook_args)
         }
 
         /// Retrieves a registered hook component based on its package address and blueprint name.
@@ -996,7 +724,176 @@ mod flex_pool {
                 .map(|hook| hook.to_owned())
         }
 
+        /// Calculate the square root of the price ratio between token X and token Y.
+        ///
+        /// # Returns
+        /// * An `Option<PreciseDecimal>` representing the square root of the price ratio.
+        pub fn price_sqrt(&self) -> Option<PreciseDecimal> {
+            let (x_vault, y_vault) = self.vault_amounts();
+            price_sqrt(x_vault, y_vault, self.ratio)
+        }
+
+        /// Retrieve the resource address of token X in the pool.
+        ///
+        /// # Returns
+        /// * The resource address of token X.
+        pub fn x_address(&self) -> ResourceAddress {
+            self.x_address
+        }
+
+        /// Retrieve the resource address of token Y in the pool.
+        ///
+        /// # Returns
+        /// * The resource address of token Y.
+        pub fn y_address(&self) -> ResourceAddress {
+            self.y_address
+        }
+
+        /// Retrieve the divisibility of the X token in this pool
+        ///
+        /// # Returns
+        /// * The divisibility of the X token
+        pub fn x_divisibility(&self) -> u8 {
+            self.x_divisibility
+        }
+
+        /// Retrieve the divisibility of the Y token in this pool
+        ///
+        /// # Returns
+        /// * The divisibility of the Y token
+        pub fn y_divisibility(&self) -> u8 {
+            self.y_divisibility
+        }
+
+        /// Retrieve the amounts of tokens X and Y in the pool.
+        ///
+        /// # Returns
+        /// * `IndexMap<ResourceAddress, Decimal>` - A map containing the resource addresses and their corresponding amounts.
+        pub fn total_liquidity(&self) -> IndexMap<ResourceAddress, Decimal> {
+            self.liquidity_pool.get_vault_amounts()
+        }
+
+        /// Retrieve the resource address of the LP token used in this pool
+        ///
+        /// # Returns
+        /// * The resource address of the LP token NFTs used in this pool
+        pub fn lp_address(&self) -> ResourceAddress {
+            self.lp_manager.address()
+        }
+
+        /// Retrieves the total supply of LP tokens in this pool.
+        ///
+        /// # Returns
+        /// * `Decimal` - The total amount of LP tokens currently issued by this pool.
+        ///
+        /// Note: LP tokens always have supply tracking enabled, so this will never fail.
+        pub fn lp_total_supply(&self) -> Decimal {
+            self.lp_manager.total_supply().unwrap()
+        }
+
+        /// Retrieve the share of token X in the pool's total value.
+        ///
+        /// # Returns
+        /// * A `Decimal` representing the share of token X in the pool's total value.
+        pub fn x_share(&self) -> Decimal {
+            self.x_share
+        }
+
+        /// Retrieve the share of token Y in the pool's total value.
+        ///
+        /// # Returns
+        /// * A `Decimal` representing the share of token Y in the pool's total value.
+        pub fn y_share(&self) -> Decimal {
+            Decimal::ONE - self.x_share
+        }
+
+        /// Retrieves the current input fee rate of the pool
+        ///
+        /// # Returns
+        /// * The current input fee rate of the pool
+        pub fn input_fee_rate(&self) -> Decimal {
+            self.input_fee_rate
+        }
+
+        /// Retrieve the protocol's share of the fees in the pool.
+        ///
+        /// # Returns
+        /// * The protocol's share of the fees as a `Decimal`.
+        pub fn fee_protocol_share(&self) -> Decimal {
+            self.fee_protocol_share
+        }
+
+        /// Retrieve the flash loan fee rate of the pool.
+        ///
+        /// # Returns
+        /// * The flash loan fee rate as a `Decimal`.
+        pub fn flash_loan_fee_rate(&self) -> Decimal {
+            self.flash_loan_fee_rate
+        }
+
+        /// Retrieve the global liquidity pool associated with this pool.
+        ///
+        /// # Returns
+        /// * A `Global<TwoResourcePool>` representing the liquidity pool.
+        pub fn liquidity_pool(&self) -> Global<TwoResourcePool> {
+            self.liquidity_pool
+        }
+
+        /// Retrieves the global registry component associated with this pool.
+        /// This registry is crucial as it configures and collects protocol fees,
+        /// which are essential for the decentralized management and operational sustainability of the pool.
+        ///
+        /// # Returns
+        /// * `Global<AnyComponent>` - A global reference to the registry component used by this pool.
+        pub fn registry(&self) -> Global<AnyComponent> {
+            self.registry
+        }
+
+        /// Retrieves the resource address of the transient token used within flash loans.
+        ///
+        /// # Returns
+        /// * `ResourceAddress` - The address of the transient token used in flash loans.
+        pub fn flash_loan_address(&self) -> ResourceAddress {
+            self.flash_manager.address()
+        }
+
+        /// Returns the next scheduled synchronization time with the registry.
+        ///
+        /// This method provides the timestamp (in seconds since the Unix epoch) when the pool is next set to synchronize its state with the registry.
+        ///
+        /// # Returns
+        /// * `u64` - The Unix timestamp indicating when the next synchronization with the registry is scheduled.
+        pub fn next_sync_time(&self) -> u64 {
+            self.next_sync_time
+        }
+
         // PRIVATE
+
+        /// Sets the input fee rate for the pool.
+        ///
+        /// Updates the pool's `input_fee_rate` after validating it, ensuring correct fee calculations for transactions.
+        ///
+        /// # Arguments
+        /// * `input_fee_rate` - A `Decimal` representing the new fee rate to be applied.
+        ///                      The valid range for this rate is between zero and one, where a value of `0.003` equates to a fee rate of 3%.
+        ///
+        /// # Panics
+        /// Panics if the `input_fee_rate` is not valid as determined by `assert_input_fee_rate_is_valid`.
+        fn set_input_fee_rate(&mut self, input_fee_rate: Decimal) {
+            assert_input_fee_rate_is_valid(input_fee_rate);
+            self.input_fee_rate = input_fee_rate;
+        }
+
+        /// Sets the protocol fee share for the pool.
+        ///
+        /// This method updates the `fee_protocol_share` state of the pool. It ensures that the value is within the allowed range [0, `FEE_PROTOCOL_SHARE_MAX`].
+        /// The clamping is crucial to prevent setting a fee share that exceeds the maximum allowed limit, which could lead to incorrect fee calculations.
+        ///
+        /// # Arguments
+        /// * `fee_protocol_share` - A `Decimal` representing the new protocol fee share to be set.
+        fn set_fee_protocol_share(&mut self, fee_protocol_share: Decimal) {
+            self.fee_protocol_share = fee_protocol_share.clamp(dec!(0), FEE_PROTOCOL_SHARE_MAX);
+        }
 
         /// Withdraws a specified amount of a resource from the liquidity pool.
         ///
@@ -1050,6 +947,109 @@ mod flex_pool {
                 return SwapType::SellX;
             }
             SwapType::BuyX
+        }
+
+        /// Retrieves the divisibility of the input token based on the swap type.
+        ///
+        /// # Arguments
+        /// * `swap_type` - The type of the swap (BuyX or SellX).
+        ///
+        /// # Returns
+        /// * `u8` - The divisibility of the input token.
+        fn input_divisibility(&self, swap_type: SwapType) -> u8 {
+            match swap_type {
+                SwapType::BuyX => self.y_divisibility(),
+                SwapType::SellX => self.x_divisibility(),
+            }
+        }
+
+        /// Retrieves the divisibility of the output token based on the swap type.
+        ///
+        /// # Arguments
+        /// * `swap_type` - The type of the swap (BuyX or SellX).
+        ///
+        /// # Returns
+        /// * `u8` - The divisibility of the output token.
+        fn output_divisibility(&self, swap_type: SwapType) -> u8 {
+            match swap_type {
+                SwapType::BuyX => self.x_divisibility(),
+                SwapType::SellX => self.y_divisibility(),
+            }
+        }
+
+        /// Retrieve the amounts of tokens X and Y in the pool.
+        ///
+        /// # Returns
+        /// * A tuple with shape (Decimal, Decimal) containing the amounts of token X and token Y.
+        fn vault_amounts(&self) -> (Decimal, Decimal) {
+            let reserves = self.liquidity_pool.get_vault_amounts();
+
+            let x_amount = *reserves
+                .get(&self.x_address)
+                .expect("Resource does not belong to the pool!");
+            let y_amount = *reserves
+                .get(&self.y_address)
+                .expect("Resource does not belong to the pool!");
+            (x_amount, y_amount)
+        }
+
+        /// Generates names and descriptions for the pool and LP tokens.
+        ///
+        /// This function constructs the names and descriptions for the pool and its associated LP tokens
+        /// based on the symbols of the provided resource addresses.
+        ///
+        /// # Arguments
+        /// * `x_address` - The resource address of the first asset in the pool.
+        /// * `y_address` - The resource address of the second asset in the pool.
+        ///
+        /// # Returns
+        /// A tuple containing:
+        /// - `pool_name`: The name of the pool.
+        /// - `lp_name`: The name of the LP token.
+        /// - `lp_description`: The description of the LP token.
+        fn names_and_lp_description(
+            x_address: ResourceAddress,
+            y_address: ResourceAddress,
+        ) -> (String, String, String) {
+            let x_symbol = token_symbol(x_address);
+            let y_symbol = token_symbol(y_address);
+            let (pool_name, lp_name, lp_description) =
+                match x_symbol.zip(y_symbol).map(|(x, y)| format!("{}/{}", x, y)) {
+                    Some(pair_symbol) => (
+                        format!("Ociswap Flex Pool {}", pair_symbol).to_owned(),
+                        format!("Ociswap LP {}", pair_symbol).to_owned(),
+                        format!("Ociswap LP token for Flex Pool {}", pair_symbol).to_owned(),
+                    ),
+                    None => (
+                        "Ociswap Flex Pool".to_owned(),
+                        "Ociswap LP".to_owned(),
+                        "Ociswap LP token for Flex Pool".to_owned(),
+                    ),
+                };
+            (pool_name, lp_name, lp_description)
+        }
+
+        /// Executes predefined hooks based on the lifecycle event of the pool.
+        ///
+        /// This method applies custom logic at different stages of the pool's lifecycle,
+        /// like before or after swaps, and during liquidity changes or initialization.
+        /// It uses hooks to implement modular, event-driven logic that can be customized and linked to these events.
+        ///
+        /// # Arguments
+        /// * `hook_call` - An enum representing the specific lifecycle event.
+        /// * `hook_args` - The arguments to pass to the hook functions, allowing for context-specific actions.
+        ///
+        /// # Returns
+        /// Returns the modified hook arguments after all relevant hooks have been executed,
+        /// which may carry state changes enacted by the hooks.
+        fn execute_hooks<T: ScryptoSbor>(&self, hook_call: HookCall, hook_args: T) -> T {
+            let hooks = match hook_call {
+                HookCall::BeforeInstantiate => &self.hook_calls.before_instantiate,
+                HookCall::AfterInstantiate => &self.hook_calls.after_instantiate,
+                HookCall::BeforeSwap => &self.hook_calls.before_swap,
+                HookCall::AfterSwap => &self.hook_calls.after_swap,
+            };
+            execute_hooks(&hooks, &self.hook_badges, hook_args)
         }
 
         // ORACLE
