@@ -4,6 +4,7 @@
     },
     "rust-analyzer.linkedProjects": [
         "Cargo.toml",
-        "test_hook/Cargo.toml"
+        "test_hook/Cargo.toml",
+        "hooks/Cargo.toml"
     ]
 }
