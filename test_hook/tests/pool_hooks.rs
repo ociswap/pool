@@ -28,6 +28,62 @@ mod test_hook_basic_pool {
     }
 
     #[test]
+    fn test_before_instantiate_call() {
+        let mut hook_helper = HookTestTestHelper::new();
+
+        // Instantiate hook with only BeforeInstantiate call
+        let mut hooks = Vec::new();
+        let calls = vec![HookCall::BeforeInstantiate];
+        let access = TestAccess::new();
+
+        hooks.push(hook_helper.instantiate_test_hook_output(calls, access));
+
+        hook_helper.execute_all_calls(hooks);
+    }
+
+    #[test]
+    fn test_after_instantiate_call() {
+        let mut hook_helper = HookTestTestHelper::new();
+
+        // Instantiate hook with only AfterInstantiate call
+        let mut hooks = Vec::new();
+        let calls = vec![HookCall::AfterInstantiate];
+        let access = TestAccess::new();
+
+        hooks.push(hook_helper.instantiate_test_hook_output(calls, access));
+
+        hook_helper.execute_all_calls(hooks);
+    }
+
+    #[test]
+    fn test_before_swap_call() {
+        let mut hook_helper = HookTestTestHelper::new();
+
+        // Instantiate hook with only BeforeSwap call
+        let mut hooks = Vec::new();
+        let calls = vec![HookCall::BeforeSwap];
+        let access = TestAccess::new();
+
+        hooks.push(hook_helper.instantiate_test_hook_output(calls, access));
+
+        hook_helper.execute_all_calls(hooks);
+    }
+
+    #[test]
+    fn test_after_swap_call() {
+        let mut hook_helper = HookTestTestHelper::new();
+
+        // Instantiate hook with only AfterSwap call
+        let mut hooks = Vec::new();
+        let calls = vec![HookCall::AfterSwap];
+        let access = TestAccess::new();
+
+        hooks.push(hook_helper.instantiate_test_hook_output(calls, access));
+
+        hook_helper.execute_all_calls(hooks);
+    }
+
+    #[test]
     fn test_all_calls_without_hooks() {
         let mut hook_helper = HookTestTestHelper::new();
 
