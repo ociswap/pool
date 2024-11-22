@@ -261,6 +261,7 @@ mod flex_pool {
                     "flash_loan_address" => flash_manager.address(), locked;
                     "x_address" => x_address, locked;
                     "y_address" => y_address, locked;
+                    "x_share" => x_share, locked;
                     "input_fee_rate" => input_fee_rate, locked;
                     "flash_loan_fee_rate" => flash_loan_fee_rate, locked;
                     "registry" => registry_address, locked;
