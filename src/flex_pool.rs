@@ -12,7 +12,6 @@ use oracle::{AccumulatedObservation, ObservationInterval, Oracle};
 
 #[blueprint]
 #[events(InstantiateEvent, SwapEvent, FlashLoanEvent)]
-#[types(u16, AccumulatedObservation)]
 mod flex_pool {
     enable_method_auth! {
         roles {
