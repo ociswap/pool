@@ -61,14 +61,14 @@ pub fn input_amount_net(
     Valid pre-conditions:
       `0 <= input_fee_rate <= 1`
       => `0 <= input_amount_gross * input_fee_rate <= input_amount_gross`
-      => ceiling to the 18th decimal can lead to `input_fee_lp > input_amount_gross` (with input_fee_rate = 1)
+      => ceiling to the 18th decimal can lead to `input_fee_total > input_amount_gross` (with input_fee_rate = 1)
          but only if input_amount_gross has non-zero digits afte the 18th decimal place
-         otherwise it is guaranteed that `input_fee_lp <= input_amount_gross`
+         otherwise it is guaranteed that `input_fee_total <= input_amount_gross`
       => since input_amount_gross is converted from Decimal (with only 18 decimal places) it is strictly true that:
-         `input_fee_lp < input_amount_gross`
+         `input_fee_total < input_amount_gross`
     Therefore:
       input_amount_net >= 0
-    In other words the calculated input_amount_net is always positve or equal.
+    In other words the calculated input_amount_net is always positve or equal zero.
     */
 
     // Calculate the total fee by applying the fee rate and rounding up to the specified divisibility
@@ -251,8 +251,8 @@ fn output_amount_imbalanced(
     swap_type: SwapType,
 ) -> PreciseDecimal {
     // Calculate the input vault's share after the swap by dividing input vault amount by total amount.
-    // We add ATTO to ensure the share is slightly larger than exact value, which favors the pool
-    // by effectively reducing the input amount used in calculations.
+    // We add PreciseDecimal::ATTO (1**10-36) to ensure the share is slightly larger than exact value,
+    // which favors the pool by effectively reducing the input amount used in calculations.
     let input_vault_share = ((input_vault / (input_vault + input_amount_net))
         + PreciseDecimal::ATTO)
         .checked_truncate(RoundingMode::ToPositiveInfinity)
