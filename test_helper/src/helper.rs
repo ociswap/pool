@@ -1065,7 +1065,7 @@ pub trait AttoDecimal {
 }
 
 impl AttoDecimal for Decimal {
-    const ATTO: Self = Self(I192::ONE);
+    const ATTO: Self = Self::from_attos(I192::ONE);
 }
 
 pub fn swap_with_hook_action_test(

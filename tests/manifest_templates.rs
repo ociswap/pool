@@ -2,7 +2,6 @@ use std::mem;
 
 // INSTANTIATE
 use flex_pool_test_helper::*;
-use radix_transactions::model::InstructionV1;
 use scrypto::prelude::*;
 use scrypto_test::utils::dump_manifest_to_file_system;
 
@@ -14,9 +13,8 @@ fn test_dump_instantiate() {
         .instantiate_default(helper.registry.admin_badge_address());
     helper.instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
-        .deposit_batch(helper.registry.env.account);
+        .deposit_entire_worktop(helper.registry.env.account);
     dump_manifest_to_file_system(
-        manifest_builder.object_names(),
         &manifest_builder.build(),
         "./transaction-manifest",
         Some("instantiate"),
@@ -39,9 +37,8 @@ fn test_dump_instantiate_with_liquidity() {
         dec!(0),
     );
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
-        .deposit_batch(helper.registry.env.account);
+        .deposit_entire_worktop(helper.registry.env.account);
     dump_manifest_to_file_system(
-        manifest_builder.object_names(),
         &manifest_builder.build(),
         "./transaction-manifest",
         Some("instantiate_with_liquidity"),
@@ -56,9 +53,8 @@ fn test_dump_add_liquidity() {
     helper.instantiate_default(true);
     helper.add_liquidity_default(dec!(20), dec!(30));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
-        .deposit_batch(helper.registry.env.account);
+        .deposit_entire_worktop(helper.registry.env.account);
     dump_manifest_to_file_system(
-        manifest_builder.object_names(),
         &manifest_builder.build(),
         "./transaction-manifest",
         Some("add_liquidity"),
@@ -73,9 +69,8 @@ fn test_dump_swap() {
     helper.instantiate_default(true);
     helper.swap(helper.x_address(), dec!(5));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
-        .deposit_batch(helper.registry.env.account);
+        .deposit_entire_worktop(helper.registry.env.account);
     dump_manifest_to_file_system(
-        manifest_builder.object_names(),
         &manifest_builder.build(),
         "./transaction-manifest",
         Some("swap"),
@@ -90,9 +85,8 @@ fn test_dump_remove_liquidity() {
     helper.instantiate_default(true);
     helper.remove_liquidity_default(dec!(3));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
-        .deposit_batch(helper.registry.env.account);
+        .deposit_entire_worktop(helper.registry.env.account);
     dump_manifest_to_file_system(
-        manifest_builder.object_names(),
         &manifest_builder.build(),
         "./transaction-manifest",
         Some("remove_liquidity"),
@@ -120,52 +114,48 @@ fn test_create_token() {
         )
         .with_name_lookup(|builder, lookup| {
             let owner_address_reservation = lookup.address_reservation("owner_address_reservation");
-            let (manifest, _) = builder.add_instruction_advanced(InstructionV1::CallFunction {
-                package_address: RESOURCE_PACKAGE.into(),
-                blueprint_name: FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
-                function_name: FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT
-                    .to_string(),
-                args: to_manifest_value_and_unwrap!(
-                    &(FungibleResourceManagerCreateWithInitialSupplyManifestInput {
-                        /*
-                        Setting the fixed owner role currently doesn't work. As a workaround we can specifiy it manually in the manifest via:
-                        Enum<OwnerRole::Fixed>(
-                            Enum<AccessRule::Protected>(
-                                Enum<AccessRuleNode::ProofRule>(
-                                    Enum<ProofRule::Require>(
-                                        Enum<ResourceOrNonFungible::Resource>(
-                                            NamedAddress("owner_address")
-                                        )
+            builder.call_function(
+                RESOURCE_PACKAGE,
+                FUNGIBLE_RESOURCE_MANAGER_BLUEPRINT.to_string(),
+                FUNGIBLE_RESOURCE_MANAGER_CREATE_WITH_INITIAL_SUPPLY_IDENT.to_string(),
+                FungibleResourceManagerCreateWithInitialSupplyManifestInput {
+                    /*
+                    Setting the fixed owner role currently doesn't work. As a workaround we can specifiy it manually in the manifest via:
+                    Enum<OwnerRole::Fixed>(
+                        Enum<AccessRule::Protected>(
+                            Enum<AccessRuleNode::ProofRule>(
+                                Enum<ProofRule::Require>(
+                                    Enum<ResourceOrNonFungible::Resource>(
+                                        NamedAddress("owner_address")
                                     )
                                 )
                             )
                         )
-                         */
-                        owner_role: OwnerRole::None,
-                        divisibility: 1,
-                        track_total_supply: false,
-                        metadata: metadata!(
-                            init {
-                                "name" => "OCI Owner Badge".to_owned(), locked;
-                            }
-                        ),
-                        resource_roles: FungibleResourceRoles {
-                            mint_roles: mint_roles! {
-                                minter => None;
-                                minter_updater => None;
-                            },
-                            burn_roles: burn_roles! {
-                                burner => None;
-                                burner_updater => None;
-                            },
-                            ..Default::default()
+                    )
+                     */
+                    owner_role: OwnerRole::None,
+                    divisibility: 1,
+                    track_total_supply: false,
+                    metadata: metadata!(
+                        init {
+                            "name" => "OCI Owner Badge".to_owned(), locked;
+                        }
+                    ),
+                    resource_roles: FungibleResourceRoles {
+                        mint_roles: mint_roles! {
+                            minter => None;
+                            minter_updater => None;
                         },
-                        initial_supply: dec!(1),
-                        address_reservation: Some(owner_address_reservation),
-                    })
-                ),
-            });
-            manifest
+                        burn_roles: burn_roles! {
+                            burner => None;
+                            burner_updater => None;
+                        },
+                        ..Default::default()
+                    },
+                    initial_supply: dec!(1),
+                    address_reservation: Some(owner_address_reservation),
+                },
+            )
         });
     let manifest_builder = manifest_builder
         .with_name_lookup(|builder, _| {
@@ -201,9 +191,8 @@ fn test_create_token() {
                 Some((100_000_000u64).into()),
             )
         })
-        .deposit_batch(helper.registry.env.account);
+        .deposit_entire_worktop(helper.registry.env.account);
     dump_manifest_to_file_system(
-        manifest_builder.object_names(),
         &manifest_builder.build(),
         "./transaction-manifest",
         Some("create_token"),
@@ -222,9 +211,8 @@ fn test_dump_set_whitelist() {
     helper.set_whitelist_hook("registry");
     helper.lock_whitelist_hook();
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
-        .deposit_batch(helper.registry.env.account);
+        .deposit_entire_worktop(helper.registry.env.account);
     dump_manifest_to_file_system(
-        manifest_builder.object_names(),
         &manifest_builder.build(),
         "./transaction-manifest",
         Some("whitelist"),
