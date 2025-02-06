@@ -80,7 +80,7 @@ mod pool {
     }
 
     impl Pool {
-        /// Instantiates a new `Pool` with specified parameters.
+        /// Instantiates a new Pool V2 with specified parameters.
         ///
         /// This method sets up a new liquidity pool, which can be either balanced or imbalanced. It ensures that the provided
         /// token addresses are valid and different, and that the initial share distribution is within the acceptable bounds.
@@ -307,7 +307,7 @@ mod pool {
             (pool, lp_address)
         }
 
-        /// Instantiates a new Basic Pool with initial liquidity.
+        /// Instantiates a new Pool V2 with initial liquidity.
         ///
         /// This method creates a new `Pool` and then adds initial
         /// liquidity.
