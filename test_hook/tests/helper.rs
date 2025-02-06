@@ -47,7 +47,7 @@ impl HookTestTestHelper {
             mem::replace(&mut self.env().manifest_builder, ManifestBuilder::new());
         self.env().manifest_builder = manifest_builder.call_function(
             package_address,
-            "TestHookBasicPool",
+            "TestHookPool",
             "instantiate",
             manifest_args!(
                 calls,

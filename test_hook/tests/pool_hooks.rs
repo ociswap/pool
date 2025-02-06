@@ -1,7 +1,7 @@
 mod helper;
 
 #[cfg(test)]
-mod test_hook_basic_pool {
+mod test_test_hook {
     use super::*;
     use helper::HookTestTestHelper;
     use ociswap_pool_hooks::HookCall;
