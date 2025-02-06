@@ -1,4 +1,4 @@
-use flex_pool::constants::*;
+use ociswap_pool::constants::*;
 use pretty_assertions::assert_eq;
 use scrypto::prelude::*;
 

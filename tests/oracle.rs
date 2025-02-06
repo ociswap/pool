@@ -1,10 +1,10 @@
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use scrypto::prelude::*;
 use scrypto_testenv::TestHelperExecution;
 
 #[test]
 fn test_oracle_last_observation_index() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper.add_liquidity_success(
         dec!(100000),

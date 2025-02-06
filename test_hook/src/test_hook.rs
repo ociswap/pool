@@ -1,5 +1,5 @@
 use common::pools::SwapType;
-use flex_pool_hooks::*;
+use ociswap_pool_hooks::*;
 use scrypto::prelude::*;
 
 #[blueprint]
@@ -16,20 +16,20 @@ mod test_hook_simple_pool {
             after_swap => restrict_to: [hook_admin];
         }
     }
-    struct TestHookBasicPool {
+    struct TestHookPool {
         calls: Vec<HookCall>,
         calls_access: TestAccess,
         x_vault: Vault,
         y_vault: Vault,
     }
 
-    impl TestHookBasicPool {
+    impl TestHookPool {
         pub fn instantiate(
             calls: Vec<HookCall>,
             calls_access: TestAccess,
             x_address: ResourceAddress,
             y_address: ResourceAddress,
-        ) -> (Global<TestHookBasicPool>, FungibleBucket) {
+        ) -> (Global<TestHookPool>, FungibleBucket) {
             let hook_badge = ResourceBuilder::new_fungible(OwnerRole::None)
                 .divisibility(DIVISIBILITY_NONE)
                 .metadata(metadata! {

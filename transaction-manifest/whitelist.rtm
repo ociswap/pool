@@ -10,7 +10,7 @@ CALL_METHOD
     Decimal("1")
 ;
 SET_METADATA
-    Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
+    Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
     "registry"
     Enum<8u8>(
         Address("component_sim1cq9uf6qzpguhs3cr65qn7mc822yhwad088q69wzcckzqfc3nwtxyyn")
@@ -23,7 +23,7 @@ CALL_METHOD
     Decimal("1")
 ;
 LOCK_METADATA
-    Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
+    Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
     "registry"
 ;
 CALL_METHOD
@@ -33,7 +33,7 @@ CALL_METHOD
     Decimal("1")
 ;
 SET_METADATA
-    Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
+    Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
     "hook_packages"
     Enum<136u8>(
         Array<Address>()
@@ -46,11 +46,11 @@ CALL_METHOD
     Decimal("1")
 ;
 SET_METADATA
-    Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
+    Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
     "hook_packages"
     Enum<136u8>(
         Array<Address>(
-            Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
+            Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
         )
     )
 ;
@@ -61,7 +61,7 @@ CALL_METHOD
     Decimal("1")
 ;
 LOCK_METADATA
-    Address("package_sim1p5eg9cg06z3qesfp3jmq3lsq3fdmk4pgcg46s4k7raxdtw8ql4fg9a")
+    Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
     "hook_packages"
 ;
 CALL_METHOD

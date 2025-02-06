@@ -7,12 +7,12 @@ use common::math::DivisibilityRounding;
 use common::metadata::{address_from_metadata, assert_component_packages_are_approved};
 use common::pools::*;
 use common::time::*;
-use flex_pool_hooks::*;
+use ociswap_pool_hooks::*;
 use oracle::{AccumulatedObservation, ObservationInterval, Oracle};
 
 #[blueprint]
 #[events(InstantiateEvent, SwapEvent, FlashLoanEvent)]
-mod flex_pool {
+mod pool {
     enable_method_auth! {
         roles {
             blueprint => updatable_by: [];
@@ -54,7 +54,7 @@ mod flex_pool {
         }
     }
 
-    struct FlexPool {
+    struct Pool {
         pool_address: ComponentAddress,
         x_address: ResourceAddress,
         y_address: ResourceAddress,
@@ -79,8 +79,8 @@ mod flex_pool {
         oracle: Oracle,
     }
 
-    impl FlexPool {
-        /// Instantiates a new `FlexPool` with specified parameters.
+    impl Pool {
+        /// Instantiates a new Pool V2 with specified parameters.
         ///
         /// This method sets up a new liquidity pool, which can be either balanced or imbalanced. It ensures that the provided
         /// token addresses are valid and different, and that the initial share distribution is within the acceptable bounds.
@@ -96,7 +96,7 @@ mod flex_pool {
         ///
         /// ## Returns
         /// - A tuple containing:
-        ///   - A global reference to the instantiated `FlexPool`.
+        ///   - A global reference to the instantiated `Pool`.
         ///   - A bucket containing the LP tokens representing the initial liquidity position.
         ///
         /// ## Panics
@@ -111,7 +111,7 @@ mod flex_pool {
             flash_loan_fee_rate: Decimal,
             a_share: Decimal,
             hook_badges: Vec<(ComponentAddress, Bucket)>,
-        ) -> (Global<FlexPool>, ResourceAddress) {
+        ) -> (Global<Pool>, ResourceAddress) {
             // Validity assertions
             assert!(
                 MINIMUM_SHARE <= a_share && a_share <= MAXIMUM_SHARE,
@@ -177,7 +177,7 @@ mod flex_pool {
 
             // Reserve an address for the new pool and set up LP token management.
             let (address_reservation, pool_address) =
-                Runtime::allocate_component_address(FlexPool::blueprint_id());
+                Runtime::allocate_component_address(Pool::blueprint_id());
 
             let pool_access_rule = rule!(require(global_caller(pool_address)));
             let liquidity_pool = Blueprint::<TwoResourcePool>::instantiate(
@@ -248,7 +248,7 @@ mod flex_pool {
             .instantiate()
             .prepare_to_globalize(OwnerRole::None)
             .roles(roles!(
-                blueprint => rule!(require(global_caller(FlexPool::blueprint_id())));
+                blueprint => rule!(require(global_caller(Pool::blueprint_id())));
             ))
             .with_address(address_reservation)
             .metadata(metadata! {
@@ -307,9 +307,9 @@ mod flex_pool {
             (pool, lp_address)
         }
 
-        /// Instantiates a new Basic Pool with initial liquidity.
+        /// Instantiates a new Pool V2 with initial liquidity.
         ///
-        /// This method creates a new `FlexPool` and then adds initial
+        /// This method creates a new `Pool` and then adds initial
         /// liquidity.
         ///
         /// ## Arguments
@@ -322,7 +322,7 @@ mod flex_pool {
         ///
         /// ## Returns
         /// - A tuple containing:
-        ///   - A global reference to the instantiated `FlexPool`.
+        ///   - A global reference to the instantiated `Pool`.
         ///   - A bucket containing the LP tokens representing the initial liquidity position.
         ///
         /// ## Panics
@@ -337,7 +337,7 @@ mod flex_pool {
             flash_loan_fee_rate: Decimal,
             a_share: Decimal,
             hook_badges: Vec<(ComponentAddress, Bucket)>,
-        ) -> (Global<FlexPool>, Bucket) {
+        ) -> (Global<Pool>, Bucket) {
             let (pool, _) = Self::instantiate(
                 a_bucket.resource_address(),
                 b_bucket.resource_address(),
@@ -1027,14 +1027,14 @@ mod flex_pool {
             let (pool_name, lp_name, lp_description) =
                 match x_symbol.zip(y_symbol).map(|(x, y)| format!("{}/{}", x, y)) {
                     Some(pair_symbol) => (
-                        format!("Ociswap Flex Pool {}", pair_symbol).to_owned(),
+                        format!("Ociswap Pool V2 {}", pair_symbol).to_owned(),
                         format!("Ociswap LP {}", pair_symbol).to_owned(),
-                        format!("Ociswap LP token for Flex Pool {}", pair_symbol).to_owned(),
+                        format!("Ociswap LP token for Pool V2 {}", pair_symbol).to_owned(),
                     ),
                     None => (
-                        "Ociswap Flex Pool".to_owned(),
+                        "Ociswap Pool V2".to_owned(),
                         "Ociswap LP".to_owned(),
-                        "Ociswap LP token for Flex Pool".to_owned(),
+                        "Ociswap LP token for Pool V2".to_owned(),
                     ),
                 };
             (pool_name, lp_name, lp_description)

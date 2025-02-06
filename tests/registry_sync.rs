@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod registry_sync {
-    use flex_pool_test_helper::*;
+    use ociswap_pool_test_helper::*;
     use pretty_assertions::assert_eq;
     use radix_engine::system::system_modules::execution_trace::ResourceSpecifier::Amount;
     use scrypto::prelude::*;
@@ -12,7 +12,7 @@ mod registry_sync {
         let sync_period: u64 = 3041;
         let sync_slots: u64 = 32;
 
-        let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
+        let mut helper = PoolTestHelper::new_without_instantiate_registry();
         helper.registry.instantiate_execute(
             helper.registry.admin_badge_address(),
             fee_protocol_share,
@@ -37,7 +37,7 @@ mod registry_sync {
 
     #[test]
     fn test_sync_update_config() {
-        let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
+        let mut helper = PoolTestHelper::new_without_instantiate_registry();
         helper.registry.instantiate_execute(
             helper.registry.admin_badge_address(),
             dec!("0.1"),
@@ -62,7 +62,7 @@ mod registry_sync {
 
     #[test]
     fn test_withdraw_protocol_fees_single_token() {
-        let mut helper = FlexPoolTestHelper::new();
+        let mut helper = PoolTestHelper::new();
         helper.instantiate_default(false);
         helper.registry.sync(
             helper.pool_address.unwrap(),
@@ -88,7 +88,7 @@ mod registry_sync {
 
     #[test]
     fn test_withdraw_protocol_fees_single_pool() {
-        let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
+        let mut helper = PoolTestHelper::new_without_instantiate_registry();
         helper.registry.instantiate_execute(
             helper.registry.admin_badge_address(),
             dec!("0.1"),
@@ -124,7 +124,7 @@ mod registry_sync {
 
     #[test]
     fn test_withdraw_protocol_fees_multiple_pool() {
-        let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
+        let mut helper = PoolTestHelper::new_without_instantiate_registry();
         helper.registry.instantiate_execute(
             helper.registry.admin_badge_address(),
             dec!("0.1"),
@@ -172,7 +172,7 @@ mod registry_sync {
         let sync_period: u64 = 3041;
         let sync_slots: u64 = 32;
 
-        let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
+        let mut helper = PoolTestHelper::new_without_instantiate_registry();
         helper.registry.instantiate_execute(
             helper.registry.admin_badge_address(),
             fee_protocol_share,

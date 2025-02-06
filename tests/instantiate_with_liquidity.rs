@@ -1,9 +1,9 @@
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use scrypto::prelude::*;
 
 #[test]
 fn test_instantiate_with_liquidity() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper.instantiate_with_liquidity_success(
         dec!(10),

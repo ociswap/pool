@@ -1,5 +1,5 @@
 use common::math::*;
-use flex_pool_test_helper::FlexPoolTestHelper;
+use ociswap_pool_test_helper::PoolTestHelper;
 use pretty_assertions::assert_eq;
 use radix_engine::system::system_modules::execution_trace::ResourceSpecifier;
 use scrypto::prelude::*;
@@ -13,7 +13,7 @@ fn test_getters_after_instantiation() {
 
     let fee_protocol_share = dec!(0.0187136);
 
-    let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
+    let mut helper = PoolTestHelper::new_without_instantiate_registry();
     helper.registry.instantiate_execute(
         helper.registry.admin_badge_address(),
         fee_protocol_share,
@@ -73,7 +73,7 @@ fn test_getters_after_instantiation() {
 
 #[test]
 fn test_lp_address() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper
         .registry
         .instantiate_default(helper.registry.admin_badge_address());
@@ -107,7 +107,7 @@ fn test_after_first_transaction() {
 
     let fee_protocol_share = dec!(0.0187136);
 
-    let mut helper = FlexPoolTestHelper::new_without_instantiate_registry();
+    let mut helper = PoolTestHelper::new_without_instantiate_registry();
     helper.registry.instantiate_execute(
         helper.registry.admin_badge_address(),
         fee_protocol_share,

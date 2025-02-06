@@ -1,5 +1,5 @@
 [package]
-name = "flex_pool_hooks"
+name = "ociswap_pool_hooks"
 version = "0.1.1"
 edition = "2021"
 

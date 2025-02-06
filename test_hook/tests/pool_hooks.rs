@@ -1,10 +1,10 @@
 mod helper;
 
 #[cfg(test)]
-mod test_hook_basic_pool {
+mod test_test_hook {
     use super::*;
-    use flex_pool_hooks::HookCall;
     use helper::HookTestTestHelper;
+    use ociswap_pool_hooks::HookCall;
     use scrypto::prelude::*;
     use test_hook::test_hook::TestAccess;
 

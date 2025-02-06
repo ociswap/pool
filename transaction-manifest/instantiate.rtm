@@ -5,7 +5,7 @@ CALL_METHOD
 ;
 CALL_FUNCTION
     Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
-    "FlexPool"
+    "Pool"
     "instantiate"
     Address("resource_sim1t4wl7uzm5fesrgqucv90tmclh06waq078gve904csqxuv3lf5ke9yl")
     Address("resource_sim1tknzy7a9jqaq2xmyzzas07ffau8fcwgfl0hh83aheg6ew24sdseuv6")

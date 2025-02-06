@@ -1,5 +1,5 @@
-use flex_pool_hooks::HookCall;
-use flex_pool_test_helper::*;
+use ociswap_pool_hooks::HookCall;
+use ociswap_pool_test_helper::*;
 use radix_transactions::prelude::ManifestBuilder;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
@@ -7,7 +7,7 @@ use std::mem;
 use test_hook::test_hook::TestAccess;
 
 pub struct HookTestTestHelper {
-    pub pool: FlexPoolTestHelper,
+    pub pool: PoolTestHelper,
 
     pub hook_address: Option<ComponentAddress>,
     pub admin_badge_address: Option<ResourceAddress>,
@@ -23,12 +23,12 @@ impl HookTestTestHelper {
     pub fn new() -> HookTestTestHelper {
         let packages: HashMap<&str, &str> = vec![
             ("registry", "../registry"),
-            ("flex_pool", ".."),
+            ("pool", ".."),
             ("test_hook", "."),
         ]
         .into_iter()
         .collect();
-        let pool = FlexPoolTestHelper::new_with_packages(packages, true);
+        let pool = PoolTestHelper::new_with_packages(packages, true);
 
         Self {
             pool,
@@ -47,7 +47,7 @@ impl HookTestTestHelper {
             mem::replace(&mut self.env().manifest_builder, ManifestBuilder::new());
         self.env().manifest_builder = manifest_builder.call_function(
             package_address,
-            "TestHookBasicPool",
+            "TestHookPool",
             "instantiate",
             manifest_args!(
                 calls,
@@ -109,7 +109,7 @@ impl HookTestTestHelper {
     }
 }
 
-fn advance_to_second_in_round(pool_helper: &mut FlexPoolTestHelper, second: i64) {
+fn advance_to_second_in_round(pool_helper: &mut PoolTestHelper, second: i64) {
     let current_round = pool_helper
         .registry
         .env
