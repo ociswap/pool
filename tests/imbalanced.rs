@@ -1,12 +1,12 @@
 use common::pools::SwapType;
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use pretty_assertions::assert_eq;
 use scrypto::prelude::*;
 use scrypto_testenv::MAX_SUPPLY;
 
 #[test]
 fn test_swap_sell_x() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -16,7 +16,7 @@ fn test_swap_sell_x() {
         dec!(0),
     );
     helper.swap_success(helper.x_address(), dec!(10), dec!("0.499950004999500049"));
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
@@ -26,7 +26,7 @@ fn test_swap_sell_x() {
         dec!(0),
     );
     helper.swap_success(helper.x_address(), dec!(10), dec!("0.49996875156192"));
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -40,7 +40,7 @@ fn test_swap_sell_x() {
 
 #[test]
 fn test_swap_buy_x() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -50,7 +50,7 @@ fn test_swap_buy_x() {
         dec!(0),
     );
     helper.swap_success(helper.y_address(), dec!(10), dec!("199.600798403193612774"));
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
@@ -60,7 +60,7 @@ fn test_swap_buy_x() {
         dec!(0),
     );
     helper.swap_success(helper.y_address(), dec!(10), dec!("199.7503743916192"));
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -74,7 +74,7 @@ fn test_swap_buy_x() {
 
 #[test]
 fn test_price_sqrt() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.5), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -84,7 +84,7 @@ fn test_price_sqrt() {
         dec!(0),
     );
     helper.price_sqrt_success(Some(pdec!("0.223606797749978969640917366873127623")));
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
@@ -94,7 +94,7 @@ fn test_price_sqrt() {
         dec!(0),
     );
     helper.price_sqrt_success(Some(pdec!("0.223606797749978969640917366873127622")));
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -108,7 +108,7 @@ fn test_price_sqrt() {
 
 #[test]
 fn test_remove_ratio_after_large_buy_x_large_a_share() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
@@ -145,7 +145,7 @@ fn test_remove_ratio_after_large_buy_x_large_a_share() {
 
 #[test]
 fn test_remove_ratio_after_large_buy_x_small_a_share() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -182,7 +182,7 @@ fn test_remove_ratio_after_large_buy_x_small_a_share() {
 
 #[test]
 fn test_remove_ratio_after_large_sell_x_large_a_share() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper.add_liquidity_success(
         dec!(400000),
@@ -218,7 +218,7 @@ fn test_remove_ratio_after_large_sell_x_large_a_share() {
 
 #[test]
 fn test_remove_ratio_after_large_sell_x_small_a_share() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.2), false);
     helper.add_liquidity_success(
         dec!(100000),
@@ -252,13 +252,13 @@ fn test_remove_ratio_after_large_sell_x_small_a_share() {
     )
 }
 
-fn instantiate_helper() -> FlexPoolTestHelper {
-    let mut helper = FlexPoolTestHelper::new();
+fn instantiate_helper() -> PoolTestHelper {
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default_with_all_fees(dec!(0), dec!(0), dec!(0.8), false);
     helper
 }
 
-fn instantiate_helper_with_liquidity() -> FlexPoolTestHelper {
+fn instantiate_helper_with_liquidity() -> PoolTestHelper {
     let mut helper = instantiate_helper();
     helper.add_liquidity_success(
         dec!(400000),
@@ -271,11 +271,11 @@ fn instantiate_helper_with_liquidity() -> FlexPoolTestHelper {
 }
 
 fn swap_expect_success(
-    helper: Option<FlexPoolTestHelper>,
+    helper: Option<PoolTestHelper>,
     swap_type: SwapType,
     input_amount: Decimal,
     output_amount_expected: Decimal,
-) -> FlexPoolTestHelper {
+) -> PoolTestHelper {
     let mut helper = helper.unwrap_or(instantiate_helper_with_liquidity());
     helper.swap_success(
         match swap_type {
@@ -560,7 +560,7 @@ fn swap_with_max_x_max_y_liquidity_buy_x_max_y() {
 
 #[test]
 fn test_lower_divisibility() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     let stable_address = helper.registry.env.test_runner.create_fungible_resource(
         dec!(10000000),
         6,
@@ -578,7 +578,7 @@ fn test_lower_divisibility() {
 
 #[test]
 fn swap_multiple() {
-    let mut helper: FlexPoolTestHelper =
+    let mut helper: PoolTestHelper =
         swap_expect_success(None, SwapType::SellX, dec!(10), dec!("0.49996875156192"));
     helper.swap_success(helper.x_address(), dec!(1), dec!("0.049993438016644823"));
 }

@@ -1,5 +1,5 @@
 use common::pools::SwapType;
-use flex_pool_hooks::*;
+use ociswap_pool_hooks::*;
 use scrypto::prelude::*;
 
 #[blueprint]

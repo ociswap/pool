@@ -27,7 +27,7 @@ TAKE_FROM_WORKTOP
 ;
 CALL_FUNCTION
     Address("package_sim1p5tk86x78nq08k9q8hy9n7w99fv5zefkekeujkyerkrtydzunvrpzu")
-    "FlexPool"
+    "Pool"
     "instantiate_with_liquidity"
     Bucket("a_bucket_1")
     Bucket("b_bucket_1")

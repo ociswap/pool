@@ -7,24 +7,24 @@ use registry_test_helper::RegistryTestHelper;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
 
-pub struct FlexPoolTestHelper {
+pub struct PoolTestHelper {
     pub pool_address: Option<ComponentAddress>,
     pub lp_address: Option<ResourceAddress>,
     pub liquidity_pool_address: Option<ComponentAddress>,
     pub registry: RegistryTestHelper,
 }
 
-impl FlexPoolTestHelper {
-    pub fn new() -> FlexPoolTestHelper {
+impl PoolTestHelper {
+    pub fn new() -> PoolTestHelper {
         Self::new_internal(true)
     }
 
-    pub fn new_without_instantiate_registry() -> FlexPoolTestHelper {
+    pub fn new_without_instantiate_registry() -> PoolTestHelper {
         Self::new_internal(false)
     }
 
-    fn new_internal(instantiate_registry: bool) -> FlexPoolTestHelper {
-        let packages: HashMap<&str, &str> = vec![("registry", "registry"), ("flex_pool", ".")]
+    fn new_internal(instantiate_registry: bool) -> PoolTestHelper {
+        let packages: HashMap<&str, &str> = vec![("registry", "registry"), ("pool", ".")]
             .into_iter()
             .collect();
         Self::new_with_packages(packages, instantiate_registry)
@@ -33,8 +33,8 @@ impl FlexPoolTestHelper {
     pub fn new_with_packages(
         packages: HashMap<&str, &str>,
         instantiate_registry: bool,
-    ) -> FlexPoolTestHelper {
-        let mut helper = FlexPoolTestHelper {
+    ) -> PoolTestHelper {
+        let mut helper = PoolTestHelper {
             pool_address: None,
             lp_address: None,
             liquidity_pool_address: None,
@@ -61,13 +61,13 @@ impl FlexPoolTestHelper {
         input_fee_rate: Decimal,
         flash_loan_fee_rate: Decimal,
         a_share: Decimal,
-    ) -> &mut FlexPoolTestHelper {
-        let package_address = self.registry.env.package_address("flex_pool");
+    ) -> &mut PoolTestHelper {
+        let package_address = self.registry.env.package_address("pool");
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         let hooks_buckets: Vec<(ComponentAddress, ManifestBucket)> = Vec::new();
         self.registry.env.manifest_builder = manifest_builder.call_function(
             package_address,
-            "FlexPool",
+            "Pool",
             "instantiate",
             manifest_args!(
                 a_address,
@@ -114,7 +114,7 @@ impl FlexPoolTestHelper {
         b_address: ResourceAddress,
         input_fee_rate: Decimal,
         a_share: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         self.instantiate_full(a_address, b_address, input_fee_rate, dec!(0.009), a_share)
     }
 
@@ -125,9 +125,9 @@ impl FlexPoolTestHelper {
         b_address: ResourceAddress,
         b_amount: Decimal,
         input_fee_rate: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let account = self.registry.env.account;
-        let package_address = self.registry.env.package_address("flex_pool");
+        let package_address = self.registry.env.package_address("pool");
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         let hooks_buckets: Vec<(ComponentAddress, ManifestBucket)> = Vec::new();
         self.registry.env.manifest_builder = manifest_builder
@@ -140,7 +140,7 @@ impl FlexPoolTestHelper {
                 let b_bucket = lookup.bucket(self.registry.name("b_bucket"));
                 builder.call_function(
                     package_address,
-                    "FlexPool",
+                    "Pool",
                     "instantiate_with_liquidity",
                     manifest_args!(
                         a_bucket,
@@ -164,7 +164,7 @@ impl FlexPoolTestHelper {
         x_amount: Decimal,
         y_address: ResourceAddress,
         y_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let account_component = self.registry.env.account;
         let pool_address = self.pool_address.unwrap();
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
@@ -190,7 +190,7 @@ impl FlexPoolTestHelper {
         &mut self,
         lp_address: ResourceAddress,
         lp_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let account_component = self.registry.env.account;
         let pool_address = self.pool_address.unwrap();
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
@@ -205,7 +205,7 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn removable_liquidity(&mut self, lp_amount: Decimal) -> &mut FlexPoolTestHelper {
+    pub fn removable_liquidity(&mut self, lp_amount: Decimal) -> &mut PoolTestHelper {
         let pool_address = self.pool_address.unwrap();
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder.call_method(
@@ -223,7 +223,7 @@ impl FlexPoolTestHelper {
         &mut self,
         lp_address: ResourceAddress,
         lp_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let account_component = self.registry.env.account;
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder
@@ -247,7 +247,7 @@ impl FlexPoolTestHelper {
         x_amount: Decimal,
         y_address: ResourceAddress,
         y_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let account_component = self.registry.env.account;
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder
@@ -272,7 +272,7 @@ impl FlexPoolTestHelper {
         &mut self,
         input_address: ResourceAddress,
         input_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder
             .withdraw_from_account(self.registry.env.account, input_address, input_amount)
@@ -297,7 +297,7 @@ impl FlexPoolTestHelper {
         &mut self,
         output_address: ResourceAddress,
         output_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder.call_method(
             self.liquidity_pool_address.unwrap(),
@@ -314,7 +314,7 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn getter(&mut self, name: &str) -> &mut FlexPoolTestHelper {
+    pub fn getter(&mut self, name: &str) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder =
             manifest_builder.call_method(self.pool_address.unwrap(), name, manifest_args!());
@@ -322,43 +322,43 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn total_liquidity(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn total_liquidity(&mut self) -> &mut PoolTestHelper {
         self.getter("total_liquidity")
     }
 
-    pub fn liquidity(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn liquidity(&mut self) -> &mut PoolTestHelper {
         self.getter("liquidity")
     }
 
-    pub fn price_sqrt(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn price_sqrt(&mut self) -> &mut PoolTestHelper {
         self.getter("price_sqrt")
     }
 
-    pub fn x_share(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn x_share(&mut self) -> &mut PoolTestHelper {
         self.getter("x_share")
     }
 
-    pub fn y_share(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn y_share(&mut self) -> &mut PoolTestHelper {
         self.getter("y_share")
     }
 
-    pub fn lp_address(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn lp_address(&mut self) -> &mut PoolTestHelper {
         self.getter("lp_address")
     }
 
-    pub fn lp_total_supply(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn lp_total_supply(&mut self) -> &mut PoolTestHelper {
         self.getter("lp_total_supply")
     }
 
-    pub fn input_fee_rate(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn input_fee_rate(&mut self) -> &mut PoolTestHelper {
         self.getter("input_fee_rate")
     }
 
-    pub fn fee_protocol_share(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn fee_protocol_share(&mut self) -> &mut PoolTestHelper {
         self.getter("fee_protocol_share")
     }
 
-    pub fn flash_loan_fee_rate(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn flash_loan_fee_rate(&mut self) -> &mut PoolTestHelper {
         self.getter("flash_loan_fee_rate")
     }
 
@@ -366,7 +366,7 @@ impl FlexPoolTestHelper {
         &mut self,
         input_address: ResourceAddress,
         input_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder
             .withdraw_from_account(self.registry.env.account, input_address, input_amount)
@@ -450,8 +450,8 @@ impl FlexPoolTestHelper {
         a_address: ResourceAddress,
         b_address: ResourceAddress,
         hooks: Vec<(ComponentAddress, ResourceAddress)>,
-    ) -> &mut FlexPoolTestHelper {
-        let package_address = self.registry.env.package_address("flex_pool");
+    ) -> &mut PoolTestHelper {
+        let package_address = self.registry.env.package_address("pool");
         let mut manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         for hook in hooks.clone() {
             let (_, badge_address) = hook;
@@ -476,7 +476,7 @@ impl FlexPoolTestHelper {
                     .collect();
                 builder.call_function(
                     package_address,
-                    "FlexPool",
+                    "Pool",
                     "instantiate",
                     manifest_args!(
                         a_address,
@@ -499,7 +499,7 @@ impl FlexPoolTestHelper {
         &mut self,
         hooks: Vec<(ComponentAddress, ResourceAddress)>,
         verbose: bool,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         self.instantiate_pool_with_hooks(
             self.registry.x_address(),
             self.registry.y_address(),
@@ -517,7 +517,7 @@ impl FlexPoolTestHelper {
         &mut self,
         x_amount: Decimal,
         y_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         self.add_liquidity(self.x_address(), x_amount, self.y_address(), y_amount);
         self
     }
@@ -526,7 +526,7 @@ impl FlexPoolTestHelper {
         &mut self,
         x_amount: Decimal,
         y_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let receipt = self
             .add_liquidity(
                 self.registry.x_address(),
@@ -541,17 +541,17 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn swap_x_default(&mut self, x_amount: Decimal) -> &mut FlexPoolTestHelper {
+    pub fn swap_x_default(&mut self, x_amount: Decimal) -> &mut PoolTestHelper {
         self.swap(self.x_address(), x_amount);
         self
     }
 
-    pub fn swap_y_default(&mut self, y_amount: Decimal) -> &mut FlexPoolTestHelper {
+    pub fn swap_y_default(&mut self, y_amount: Decimal) -> &mut PoolTestHelper {
         self.swap(self.y_address(), y_amount);
         self
     }
 
-    pub fn remove_liquidity_default(&mut self, lp_amount: Decimal) -> &mut FlexPoolTestHelper {
+    pub fn remove_liquidity_default(&mut self, lp_amount: Decimal) -> &mut PoolTestHelper {
         self.remove_liquidity(self.lp_address.unwrap(), lp_amount)
     }
 
@@ -559,7 +559,7 @@ impl FlexPoolTestHelper {
         &mut self,
         loan_address: ResourceAddress,
         loan_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder.call_method(
             self.pool_address.unwrap(),
@@ -577,7 +577,7 @@ impl FlexPoolTestHelper {
         repay_fee_amount: Decimal,
         flash_loan_address: ResourceAddress,
         transient_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         let account_component = self.registry.env.account;
         self.registry.env.manifest_builder = manifest_builder
@@ -611,7 +611,7 @@ impl FlexPoolTestHelper {
         repay_amount: Decimal,
         repay_fee_amount: Decimal,
         remainder_expected: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         self.instantiate_default(false);
         let receipt = self
             .add_liquidity_default(dec!(10), dec!(10))
@@ -645,7 +645,7 @@ impl FlexPoolTestHelper {
         repay_address: ResourceAddress,
         repay_amount: Decimal,
         repay_fee_amount: Decimal,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         self.instantiate_default(false);
         let receipt = self
             .add_liquidity_default(dec!(10), dec!(10))
@@ -668,7 +668,7 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn flash_loan_address(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn flash_loan_address(&mut self) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder.call_method(
             self.pool_address.unwrap(),
@@ -681,7 +681,7 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn last_observation_index(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn last_observation_index(&mut self) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder.call_method(
             self.pool_address.unwrap(),
@@ -694,7 +694,7 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn oldest_observation_at(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn oldest_observation_at(&mut self) -> &mut PoolTestHelper {
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder.call_method(
             self.pool_address.unwrap(),
@@ -977,7 +977,7 @@ impl FlexPoolTestHelper {
         println!("{:?}", meta);
     }
 
-    pub fn set_whitelist_registry(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn set_whitelist_registry(&mut self) -> &mut PoolTestHelper {
         let registry_address = self.registry.registry_address.unwrap();
         self.set_metadata("registry", registry_address)
     }
@@ -985,26 +985,23 @@ impl FlexPoolTestHelper {
     pub fn set_whitelist_registry_value(
         &mut self,
         value: impl ToMetadataEntry,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         self.set_metadata("registry", value)
     }
 
-    pub fn lock_whitelist_registry(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn lock_whitelist_registry(&mut self) -> &mut PoolTestHelper {
         self.lock_metadata("registry")
     }
 
-    pub fn set_whitelist_hook(&mut self, package_name: &str) -> &mut FlexPoolTestHelper {
+    pub fn set_whitelist_hook(&mut self, package_name: &str) -> &mut PoolTestHelper {
         self.set_whitelist_packages("hook_packages", vec![package_name])
     }
 
-    pub fn set_whitelist_hook_value(
-        &mut self,
-        value: impl ToMetadataEntry,
-    ) -> &mut FlexPoolTestHelper {
+    pub fn set_whitelist_hook_value(&mut self, value: impl ToMetadataEntry) -> &mut PoolTestHelper {
         self.set_metadata("hook_packages", value)
     }
 
-    pub fn lock_whitelist_hook(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn lock_whitelist_hook(&mut self) -> &mut PoolTestHelper {
         self.lock_metadata("hook_packages")
     }
 
@@ -1012,7 +1009,7 @@ impl FlexPoolTestHelper {
         &mut self,
         metadata_key: &str,
         package_names: Vec<&str>,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let global_package_addresses: Vec<GlobalAddress> = package_names
             .iter()
             .map(|package_name| self.registry.env.package_address(package_name).into())
@@ -1020,7 +1017,7 @@ impl FlexPoolTestHelper {
         self.set_metadata(metadata_key, global_package_addresses)
     }
 
-    pub fn set_dapp_definition(&mut self) -> &mut FlexPoolTestHelper {
+    pub fn set_dapp_definition(&mut self) -> &mut PoolTestHelper {
         let account_address = self.registry.env.account;
         self.set_metadata("dapp_definition", account_address)
     }
@@ -1029,9 +1026,9 @@ impl FlexPoolTestHelper {
         &mut self,
         key: impl Into<String>,
         value: impl ToMetadataEntry,
-    ) -> &mut FlexPoolTestHelper {
+    ) -> &mut PoolTestHelper {
         let precision_pool_package_address: GlobalAddress =
-            self.registry.env.package_address("flex_pool").into();
+            self.registry.env.package_address("pool").into();
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder
             .create_proof_from_account_of_amount(
@@ -1044,9 +1041,9 @@ impl FlexPoolTestHelper {
         self
     }
 
-    pub fn lock_metadata(&mut self, key: impl Into<String>) -> &mut FlexPoolTestHelper {
+    pub fn lock_metadata(&mut self, key: impl Into<String>) -> &mut PoolTestHelper {
         let precision_pool_package_address: GlobalAddress =
-            self.registry.env.package_address("flex_pool").into();
+            self.registry.env.package_address("pool").into();
         let manifest_builder = mem::take(&mut self.registry.env.manifest_builder);
         self.registry.env.manifest_builder = manifest_builder
             .create_proof_from_account_of_amount(
@@ -1076,12 +1073,12 @@ pub fn swap_with_hook_action_test(
 ) {
     let packages: HashMap<&str, &str> = vec![
         ("registry", "registry"),
-        ("flex_pool", "."),
+        ("pool", "."),
         ("test_hook", "test_hook"),
     ]
     .into_iter()
     .collect();
-    let mut helper = FlexPoolTestHelper::new_with_packages(packages, true);
+    let mut helper = PoolTestHelper::new_with_packages(packages, true);
     helper.set_whitelist_registry();
     helper.set_whitelist_hook("test_hook");
 

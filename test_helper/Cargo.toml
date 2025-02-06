@@ -1,5 +1,5 @@
 [package]
-name = "flex_pool_test_helper"
+name = "ociswap_pool_test_helper"
 version = "0.1.1"
 edition = "2021"
 
@@ -8,7 +8,7 @@ scrypto = "1.3.0"
 radix-transactions = "1.3.0"
 radix-engine = "1.3.0"
 scrypto_testenv = { git = "https://github.com/ociswap/scrypto-testenv", tag = "v0.8.0" }
-flex_pool = { path = ".." }
+ociswap_pool = { path = ".." }
 registry_test_helper = { path = "../registry/test_helper" }
 pretty_assertions = "1.3.0"
 lazy_static = "1.4.0"

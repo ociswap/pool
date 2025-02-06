@@ -1,6 +1,6 @@
 use common::math::AttoDecimal;
 // INSTANTIATE
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use pretty_assertions::assert_eq;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
@@ -8,7 +8,7 @@ use test_case::test_case;
 
 #[test]
 fn test_instantiate() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     let receipt = helper
         .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
@@ -21,7 +21,7 @@ fn test_instantiate() {
 
 #[test]
 fn test_instantiate_same_token() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper
         .instantiate(helper.x_address(), helper.x_address(), dec!(0), dec!(0.5))
@@ -31,7 +31,7 @@ fn test_instantiate_same_token() {
 
 #[test]
 fn test_instantiate_random_address_token() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     println!("{:?}", helper.a_address());
     println!("{:?}", helper.b_address());
     // random hex string with 5d as first two chars
@@ -48,7 +48,7 @@ fn test_instantiate_random_address_token() {
 
 #[test]
 fn test_instantiate_nft_addresses_both() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper
         .instantiate(
@@ -63,7 +63,7 @@ fn test_instantiate_nft_addresses_both() {
 
 #[test]
 fn test_instantiate_nft_address_x() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper
         .instantiate(
@@ -78,7 +78,7 @@ fn test_instantiate_nft_address_x() {
 
 #[test]
 fn test_instantiate_nft_address_y() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper
         .instantiate(
@@ -93,7 +93,7 @@ fn test_instantiate_nft_address_y() {
 
 #[test]
 fn test_instantiate_pool_with_lp_token() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper.set_whitelist_registry();
     helper
@@ -109,7 +109,7 @@ fn test_instantiate_pool_with_lp_token() {
 
 #[test]
 fn test_instantiate_wrong_order() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper.instantiate(helper.y_address(), helper.x_address(), dec!(0), dec!(0.5));
     let receipt = helper.registry.execute_expect_success(false);
@@ -128,7 +128,7 @@ fn test_instantiate_wrong_order() {
 #[test_case(dec!("1"), false ; "one")]
 #[test_case(dec!(1) + Decimal::ATTO, false ; "more_than_one")]
 fn test_instantiate_input_fee_rate(input_fee_rate: Decimal, success: bool) {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper.instantiate(
         helper.x_address(),
@@ -154,7 +154,7 @@ fn test_instantiate_input_fee_rate(input_fee_rate: Decimal, success: bool) {
 #[test_case(dec!(0.95) + Decimal::ATTO, false ; "invalid_larger")]
 #[test_case(dec!(1), false ; "one")]
 fn test_instantiate_a_share(a_share: Decimal, success: bool) {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper.instantiate(helper.x_address(), helper.y_address(), dec!(0), a_share);
 
@@ -167,7 +167,7 @@ fn test_instantiate_a_share(a_share: Decimal, success: bool) {
 
 #[test]
 fn test_instantiate_metadata() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper.display_meta("name");
     helper.display_meta("description");
@@ -189,7 +189,7 @@ fn test_instantiate_metadata() {
 
 #[test]
 fn test_instantiate_registry_metadata_other_value_type() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry_value("OTHER");
     helper
         .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
@@ -199,7 +199,7 @@ fn test_instantiate_registry_metadata_other_value_type() {
 
 #[test]
 fn test_instantiate_registry_metadata_other_value_type_vec() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry_value(vec!["FAKE"]);
     helper
         .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
@@ -210,7 +210,7 @@ fn test_instantiate_registry_metadata_other_value_type_vec() {
 #[test]
 fn test_instantiate_registry_metadata_other_component_address() {
     // For completeness: setting the wrong registry in the metadata is out of scope of the blueprint validation.
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     let global_address: GlobalAddress = helper.registry.env.account.into();
     helper.set_whitelist_registry_value(global_address);
     helper
@@ -221,7 +221,7 @@ fn test_instantiate_registry_metadata_other_component_address() {
 
 #[test]
 fn test_instantiate_registry_metadata_valid_registry_address() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     let global_address: GlobalAddress = helper.registry.registry_address.unwrap().into();
     helper.set_whitelist_registry_value(global_address);
     helper
@@ -232,7 +232,7 @@ fn test_instantiate_registry_metadata_valid_registry_address() {
 
 #[test]
 fn test_instantiate_registry_metadata_resource_address() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     let global_address: GlobalAddress = helper.registry.env.x_address.into();
     helper.set_whitelist_registry_value(global_address);
     helper
@@ -243,7 +243,7 @@ fn test_instantiate_registry_metadata_resource_address() {
 
 #[test]
 fn test_instantiate_registry_metadata_empty_vec() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.set_whitelist_registry_value(Vec::<GlobalAddress>::new());
     helper
         .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
@@ -253,7 +253,7 @@ fn test_instantiate_registry_metadata_empty_vec() {
 
 #[test]
 fn test_instantiate_registry_metadata_missing() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper
         .instantiate(helper.x_address(), helper.y_address(), dec!(0), dec!(0.5))
         .registry

@@ -1,15 +1,15 @@
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
 
-fn instantiate_helper() -> FlexPoolTestHelper {
-    let mut helper = FlexPoolTestHelper::new();
+fn instantiate_helper() -> PoolTestHelper {
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
 }
 
 fn add_liquidity_expect_failure(
-    helper: Option<FlexPoolTestHelper>,
+    helper: Option<PoolTestHelper>,
     x_input: Decimal,
     y_input: Decimal,
 ) {
@@ -18,13 +18,13 @@ fn add_liquidity_expect_failure(
 }
 
 fn add_liquidity_expect_success(
-    helper: Option<FlexPoolTestHelper>,
+    helper: Option<PoolTestHelper>,
     x_input: Decimal,
     y_input: Decimal,
     lp_amount_expected: Decimal,
     x_output_expected: Decimal,
     y_output_expected: Decimal,
-) -> FlexPoolTestHelper {
+) -> PoolTestHelper {
     let mut helper = helper.unwrap_or(instantiate_helper());
     helper.add_liquidity_success(
         x_input,
@@ -38,7 +38,7 @@ fn add_liquidity_expect_success(
 
 #[test]
 fn test_add_liquidity_invalid_token_both() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .add_liquidity(helper.u_address(), dec!(1), helper.v_address(), dec!(1))
@@ -48,7 +48,7 @@ fn test_add_liquidity_invalid_token_both() {
 
 #[test]
 fn test_add_liquidity_invalid_token_x() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .add_liquidity(helper.u_address(), dec!(1), helper.v_address(), dec!(1))
@@ -58,7 +58,7 @@ fn test_add_liquidity_invalid_token_x() {
 
 #[test]
 fn test_add_liquidity_invalid_token_y() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .add_liquidity(helper.x_address(), dec!(1), helper.v_address(), dec!(1))
@@ -126,7 +126,7 @@ fn test_add_liquidity_maximum_possible_liquidity() {
 
 #[test]
 fn test_add_liquidity_multiple_positions() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper =
         add_liquidity_expect_success(Some(helper), dec!(1), dec!(1), dec!(1), dec!(0), dec!(0));
@@ -135,7 +135,7 @@ fn test_add_liquidity_multiple_positions() {
 
 #[test]
 fn test_add_liquidity_with_remainder() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper =
         add_liquidity_expect_success(Some(helper), dec!(1), dec!(1), dec!(1), dec!(0), dec!(0));

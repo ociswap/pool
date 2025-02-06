@@ -1,13 +1,13 @@
 use std::mem;
 
 // INSTANTIATE
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use scrypto::prelude::*;
 use scrypto_test::utils::dump_manifest_to_file_system;
 
 #[test]
 fn test_dump_instantiate() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper
         .registry
         .instantiate_default(helper.registry.admin_badge_address());
@@ -25,7 +25,7 @@ fn test_dump_instantiate() {
 
 #[test]
 fn test_dump_instantiate_with_liquidity() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper
         .registry
         .instantiate_default(helper.registry.admin_badge_address());
@@ -49,7 +49,7 @@ fn test_dump_instantiate_with_liquidity() {
 
 #[test]
 fn test_dump_add_liquidity() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(true);
     helper.add_liquidity_default(dec!(20), dec!(30));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
@@ -65,7 +65,7 @@ fn test_dump_add_liquidity() {
 
 #[test]
 fn test_dump_swap() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(true);
     helper.swap(helper.x_address(), dec!(5));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
@@ -81,7 +81,7 @@ fn test_dump_swap() {
 
 #[test]
 fn test_dump_remove_liquidity() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(true);
     helper.remove_liquidity_default(dec!(3));
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
@@ -104,7 +104,7 @@ fn test_create_token() {
     Mainnet:
         RESOURCE_PACKAGE = package_rdx1pkgxxxxxxxxxresrcexxxxxxxxx000538436477xxxxxxxxxresrce
     */
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     let manifest_builder = mem::take(&mut helper.registry.env.manifest_builder)
         .allocate_global_address(
             RESOURCE_PACKAGE,
@@ -203,7 +203,7 @@ fn test_create_token() {
 
 #[test]
 fn test_dump_set_whitelist() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.set_whitelist_registry();
     helper.lock_whitelist_registry();
     helper.set_whitelist_hook_value(Vec::<GlobalAddress>::new());

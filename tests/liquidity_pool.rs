@@ -1,10 +1,10 @@
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use scrypto::prelude::*;
 use scrypto_testenv::*;
 
 #[test]
 fn test_redeem() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .add_liquidity(helper.x_address(), dec!(10), helper.y_address(), dec!(10))
@@ -18,7 +18,7 @@ fn test_redeem() {
 
 #[test]
 fn test_redeem_wrong_address() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .add_liquidity(helper.x_address(), dec!(10), helper.y_address(), dec!(10))
@@ -32,7 +32,7 @@ fn test_redeem_wrong_address() {
 
 #[test]
 fn test_redeem_all_then_remove_liquidity() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .add_liquidity(helper.x_address(), dec!(10), helper.y_address(), dec!(10))
@@ -47,7 +47,7 @@ fn test_redeem_all_then_remove_liquidity() {
 
 #[test]
 fn test_contribute() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .contribute(helper.x_address(), dec!(1), helper.y_address(), dec!(1))
@@ -57,7 +57,7 @@ fn test_contribute() {
 
 #[test]
 fn test_protected_deposit() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .protected_deposit(helper.x_address(), dec!(1))
@@ -67,7 +67,7 @@ fn test_protected_deposit() {
 
 #[test]
 fn test_protected_withdraw() {
-    let mut helper: FlexPoolTestHelper = FlexPoolTestHelper::new();
+    let mut helper: PoolTestHelper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper
         .add_liquidity(helper.x_address(), dec!(10), helper.y_address(), dec!(10))

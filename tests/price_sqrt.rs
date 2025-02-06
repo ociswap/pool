@@ -1,16 +1,16 @@
-use flex_pool_test_helper::*;
+use ociswap_pool_test_helper::*;
 use scrypto::prelude::*;
 
 #[test]
 fn test_price_sqrt_no_liquidity() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper.price_sqrt_success(None);
 }
 
 #[test]
 fn test_price_sqrt_swap() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(true);
     helper.add_liquidity_default(dec!(1), dec!(2));
     helper.price_sqrt_success(Some(pdec!("1.414213562373095048801688724209698078")));
@@ -20,7 +20,7 @@ fn test_price_sqrt_swap() {
 
 #[test]
 fn test_price_sqrt_multiple_add_liquidity() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(true);
     helper.add_liquidity_default(dec!(1), dec!(2));
     helper.price_sqrt_success(Some(pdec!("1.414213562373095048801688724209698078")));
@@ -30,7 +30,7 @@ fn test_price_sqrt_multiple_add_liquidity() {
 
 #[test]
 fn test_price_sqrt_add_liquidity_wrong_order() {
-    let mut helper = FlexPoolTestHelper::new();
+    let mut helper = PoolTestHelper::new();
     helper.instantiate_default(false);
     helper.add_liquidity(helper.y_address(), dec!(2), helper.x_address(), dec!(1));
     helper.price_sqrt_success(Some(pdec!("1.414213562373095048801688724209698078")));
