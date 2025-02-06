@@ -68,7 +68,7 @@ mod flex_pool {
         fee_protocol_share: Decimal,
         liquidity_pool: Global<TwoResourcePool>,
         lp_manager: ResourceManager,
-        flash_manager: ResourceManager,
+        flash_manager: NonFungibleResourceManager,
         flash_loan_fee_rate: Decimal,
         registry: Global<AnyComponent>,
         next_sync_time: u64,
@@ -236,7 +236,7 @@ mod flex_pool {
                 fee_protocol_share: Decimal::ZERO,
                 liquidity_pool,
                 lp_manager,
-                flash_manager: flash_manager.into(),
+                flash_manager,
                 registry: registry_address.into(),
                 next_sync_time: 0,
                 hook_calls,
@@ -570,7 +570,7 @@ mod flex_pool {
             // Mint a transient NFT that encapsulates the terms of the loan for repayment validation.
             let loan_terms = self.flash_manager.mint_ruid_non_fungible(flash_loan);
 
-            (self.withdraw(address, loan_amount), loan_terms)
+            (self.withdraw(address, loan_amount), loan_terms.into())
         }
 
         /// Repays the loan taken through the flash loan.
